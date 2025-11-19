@@ -5,13 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BioForensic Lab - Workshop Interativo</title>
     
-    <!-- Importação das Bibliotecas via CDN (Necessário para rodar sem instalação/Node.js) -->
+    <!-- Importação das Bibliotecas via CDN -->
     <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- Configuração de Cores -->
+    <!-- Configuração de Cores e Estilos -->
     <script>
         tailwind.config = {
             theme: {
@@ -24,29 +24,32 @@
         }
     </script>
     <style>
-        /* Animação suave de entrada */
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .animate-fade { animation: fadeIn 0.4s ease-out; }
+        /* Classe utilitária para garantir que emojis fiquem centralizados verticalmente */
+        .emoji-icon { display: inline-flex; align-items: center; justify-content: center; line-height: 1; }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800">
     <div id="root"></div>
 
-    <!-- Script da Aplicação (Babel processa o JSX) -->
+    <!-- Script da Aplicação -->
     <script type="text/babel">
         const { useState, useMemo } = React;
 
-        // --- ÍCONES SVG (Inline para evitar dependências externas) ---
+        // --- ÍCONES EMOJI ---
+        // Substituímos os SVGs complexos por Emojis simples e universais
         const Icons = {
-            Dna: () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10 10l-2 2 2 2m4 0l2-2-2-2m-4-6l-2 2 2 2m4 0l2-2-2-2m-2-4l-2 2 2 2m4 0l2-2-2-2m-4-4l-2 2 2 2m4 0l2-2-2-2M9 3v18M15 3v18"/></svg>,
-            Calc: () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" x2="16" y1="6" y2="6"/><line x1="8" x2="16" y1="10" y2="10"/><line x1="8" x2="16" y1="14" y2="14"/><line x1="8" x2="16" y1="18" y2="18"/></svg>,
-            Microscope: () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 18h8"/><path d="M3 22h18"/><path d="M14 22a7 7 0 1 0 0-14h-1"/><path d="M9 14h2"/><path d="M9 12a2 2 0 0 1-2-2V6h6v4a2 2 0 0 1-2 2Z"/><path d="M12 6V3a1 1 0 0 0-1-1H9a1 1 0 0 0-1 1v3"/></svg>,
-            FileCheck: () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><path d="m9 15 2 2 4-4"/></svg>,
-            Alert: () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>,
-            Info: () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="16" y2="12"/><line x1="12" x2="12.01" y1="8" y2="8"/></svg>
+            Dna: () => <span className="emoji-icon text-2xl" role="img" aria-label="dna">🧬</span>,
+            Knife: () => <span className="emoji-icon text-2xl" role="img" aria-label="faca">🔪</span>,
+            Pipette: () => <span className="emoji-icon text-2xl" role="img" aria-label="laboratório">🧪</span>,
+            Calc: () => <span className="emoji-icon text-2xl" role="img" aria-label="calculadora">🧮</span>,
+            Check: () => <span className="emoji-icon text-xl" role="img" aria-label="check">✅</span>,
+            Alert: () => <span className="emoji-icon text-xl" role="img" aria-label="alerta">❌</span>,
+            Info: () => <span className="emoji-icon text-xl" role="img" aria-label="info">ℹ️</span>
         };
 
-        // --- DADOS DO WORKSHOP (Simplificados para didática) ---
+        // --- DADOS DO WORKSHOP ---
         const LOCI_DATA = {
             vWA: { '14': 0.10, '15': 0.12, '16': 0.20, '17': 0.25, '18': 0.18, '19': 0.15 },
             TH01: { '6': 0.25, '7': 0.30, '8': 0.15, '9': 0.15, '9.3': 0.15 },
@@ -68,7 +71,7 @@
 
         const Button = ({ onClick, children, variant = "primary", disabled = false }) => {
             const styles = {
-                primary: "bg-blue-600 text-white hover:bg-blue-700",
+                primary: "bg-blue-600 text-white hover:bg-blue-700 shadow-md",
                 secondary: "bg-slate-200 text-slate-800 hover:bg-slate-300"
             };
             return (
@@ -83,14 +86,14 @@
         };
 
         const SelectAllele = ({ label, value, onChange, options }) => (
-            <div className="flex flex-col">
-                <label className="text-xs font-bold text-slate-500 uppercase mb-1">{label}</label>
+            <div className="flex flex-col w-full">
+                <label className="text-[10px] font-bold text-slate-500 uppercase mb-1">{label}</label>
                 <select 
                     value={value} 
                     onChange={e => onChange(e.target.value)}
-                    className="border border-slate-300 rounded p-2 text-sm bg-white focus:ring-2 focus:ring-blue-500 outline-none"
+                    className="border border-slate-300 rounded p-2 text-sm bg-white focus:ring-2 focus:ring-blue-500 outline-none w-full"
                 >
-                    <option value="">Selecione</option>
+                    <option value="">...</option>
                     {options.map(opt => <option key={opt} value={opt}>{opt}</option>)}
                 </select>
             </div>
@@ -99,23 +102,23 @@
         // --- MÓDULO 2: FLUXO DE TRABALHO ---
         const WorkflowView = () => {
             const steps = [
-                { title: "1. Coleta e Preservação", icon: <Icons.FileCheck />, text: "Uso de EPIs, cadeia de custódia e coleta com duplo swab. Preservação em papel para evitar degradação por umidade." },
-                { title: "2. Extração de DNA", icon: <Icons.Dna />, text: "Rompimento das membranas celulares (Lise) e purificação do DNA (remoção de proteínas/inibidores). Métodos: Orgânico, Chelex ou Sílica." },
-                { title: "3. Quantificação (qPCR)", icon: <Icons.Calc />, text: "Verificação da quantidade e qualidade do DNA humano e masculino. Essencial para normalizar a reação de PCR." },
-                { title: "4. Amplificação (PCR)", icon: <Icons.Microscope />, text: "Amplificação multiplex dos marcadores STR. Ciclos de Desnaturação, Anelamento e Extensão criam milhões de cópias." },
-                { title: "5. Eletroforese Capilar", icon: <Icons.Dna />, text: "Separação dos fragmentos por tamanho com precisão de 1 par de bases. Detecção por fluorescência (Laser)." }
+                { title: "1. Coleta e Preservação", icon: <Icons.Knife />, text: "Uso de EPIs, cadeia de custódia e coleta de vestígios. Preservação em papel para evitar degradação." },
+                { title: "2. Extração de DNA", icon: <Icons.Pipette />, text: "Lise celular e purificação do DNA (remoção de proteínas). Métodos: Orgânico, Chelex ou Sílica." },
+                { title: "3. Quantificação (qPCR)", icon: <Icons.Calc />, text: "Medição da concentração de DNA humano para normalizar a reação de PCR. Detecta inibidores." },
+                { title: "4. Amplificação (PCR)", icon: <Icons.Dna />, text: "Termociclagem: Desnaturação, Anelamento e Extensão para criar milhões de cópias dos marcadores STR." },
+                { title: "5. Eletroforese Capilar", icon: <Icons.Dna />, text: "Separação dos fragmentos por tamanho (1pb de precisão) usando voltagem e detecção a laser (fluorescência)." }
             ];
 
             return (
                 <div className="space-y-4 animate-fade">
                     <div className="bg-blue-50 p-4 rounded-lg border border-blue-200 text-blue-900">
-                        <h2 className="font-bold text-lg mb-1">O Laboratório Forense</h2>
+                        <h2 className="font-bold text-lg mb-1 flex items-center gap-2"><Icons.Pipette /> O Laboratório Forense</h2>
                         <p className="text-sm">Visualize as etapas críticas desde a cena do crime até o perfil genético.</p>
                     </div>
                     <div className="grid gap-4">
                         {steps.map((s, i) => (
                             <div key={i} className="bg-white p-4 rounded-lg shadow-sm flex items-start gap-4 border hover:border-blue-300 transition">
-                                <div className="p-3 bg-blue-100 text-blue-600 rounded-full">{s.icon}</div>
+                                <div className="p-2 bg-slate-100 rounded-full shrink-0 border border-slate-200">{s.icon}</div>
                                 <div>
                                     <h4 className="font-bold text-slate-800">{s.title}</h4>
                                     <p className="text-sm text-slate-600 mt-1">{s.text}</p>
@@ -148,14 +151,12 @@
                     const ev = data[locus].ev.sort();
                     const susp = data[locus].susp.sort();
                     
-                    // Verifica compatibilidade
                     const match = JSON.stringify(ev) === JSON.stringify(susp);
                     
                     if (!match) {
                         isMatch = false;
                         details.push({ locus, match: false, text: "Exclusão" });
                     } else {
-                        // Hardy-Weinberg
                         const [a1, a2] = ev;
                         const p = LOCI_DATA[locus][a1] || 0.01;
                         const q = LOCI_DATA[locus][a2] || 0.01;
@@ -181,24 +182,24 @@
 
             return (
                 <div className="animate-fade">
-                    <Card title="Simulador Criminal (RMP)">
+                    <Card title={<><Icons.Knife /> Simulador Criminal (RMP)</>}>
                         <p className="mb-4 text-sm text-slate-600">Compare o Vestígio (Cena) com o Suspeito. Se houver Match, calculamos a frequência estatística.</p>
                         <div className="grid md:grid-cols-2 gap-6 mb-6">
                             <div className="bg-slate-50 p-4 rounded border">
-                                <h4 className="font-bold text-center mb-2">Vestígio (Cena)</h4>
+                                <h4 className="font-bold text-center mb-2 flex items-center justify-center gap-2"><Icons.Knife /> Vestígio (Cena)</h4>
                                 {LOCI_NAMES.map(l => (
                                     <div key={l} className="flex gap-2 mb-2 items-center">
-                                        <span className="w-16 font-mono text-sm font-bold">{l}</span>
+                                        <span className="w-14 font-mono text-sm font-bold text-slate-500">{l}</span>
                                         <SelectAllele value={data[l].ev[0]} onChange={v => handleChange(l, 'ev', 0, v)} options={Object.keys(LOCI_DATA[l])} />
                                         <SelectAllele value={data[l].ev[1]} onChange={v => handleChange(l, 'ev', 1, v)} options={Object.keys(LOCI_DATA[l])} />
                                     </div>
                                 ))}
                             </div>
                             <div className="bg-slate-50 p-4 rounded border">
-                                <h4 className="font-bold text-center mb-2">Suspeito</h4>
+                                <h4 className="font-bold text-center mb-2 flex items-center justify-center gap-2"><Icons.Dna /> Suspeito</h4>
                                 {LOCI_NAMES.map(l => (
                                     <div key={l} className="flex gap-2 mb-2 items-center">
-                                        <span className="w-16 font-mono text-sm font-bold">{l}</span>
+                                        <span className="w-14 font-mono text-sm font-bold text-slate-500">{l}</span>
                                         <SelectAllele value={data[l].susp[0]} onChange={v => handleChange(l, 'susp', 0, v)} options={Object.keys(LOCI_DATA[l])} />
                                         <SelectAllele value={data[l].susp[1]} onChange={v => handleChange(l, 'susp', 1, v)} options={Object.keys(LOCI_DATA[l])} />
                                     </div>
@@ -213,21 +214,21 @@
                     {result && (
                         <Card title="Resultado da Análise" accentColor={result.isMatch ? "green" : "red"}>
                             <div className="text-center mb-6">
-                                <h2 className={`text-2xl font-bold ${result.isMatch ? 'text-emerald-600' : 'text-rose-600'}`}>
-                                    {result.isMatch ? "INCLUSÃO (MATCH)" : "EXCLUSÃO"}
+                                <h2 className={`text-2xl font-bold flex items-center justify-center gap-2 ${result.isMatch ? 'text-emerald-600' : 'text-rose-600'}`}>
+                                    {result.isMatch ? <><Icons.Check /> INCLUSÃO (MATCH)</> : <><Icons.Alert /> EXCLUSÃO</>}
                                 </h2>
                                 {result.isMatch && (
-                                    <div className="mt-4 bg-slate-800 text-white p-4 rounded-lg inline-block">
-                                        <p className="text-sm text-slate-400">RMP (Probabilidade de Match Aleatório):</p>
+                                    <div className="mt-4 bg-slate-800 text-white p-4 rounded-lg inline-block shadow-md">
+                                        <p className="text-sm text-slate-400 uppercase tracking-wider font-semibold">RMP (Probabilidade de Match)</p>
                                         <p className="text-3xl font-mono text-yellow-400">1 em {(1/result.totalFreq).toExponential(2)}</p>
                                     </div>
                                 )}
                             </div>
                             <div className="space-y-2 text-sm">
                                 {result.details.map((d, i) => (
-                                    <div key={i} className={`flex justify-between p-2 rounded ${d.match ? 'bg-emerald-50' : 'bg-rose-50'}`}>
+                                    <div key={i} className={`flex justify-between items-center p-3 rounded-lg border ${d.match ? 'bg-emerald-50 border-emerald-100' : 'bg-rose-50 border-rose-100'}`}>
                                         <span className="font-bold">{d.locus}</span>
-                                        <span className="font-mono">{d.text}</span>
+                                        <span className="font-mono text-xs sm:text-sm">{d.text}</span>
                                     </div>
                                 ))}
                             </div>
@@ -256,29 +257,22 @@
 
                 LOCI_NAMES.forEach(locus => {
                     const m = data[locus].m;
-                    const f = data[locus].f.sort(); // Filho
+                    const f = data[locus].f.sort(); 
                     const sp = data[locus].sp;
-
-                    // Lógica Mendeliana Simples
                     let patOblig = null;
                     
-                    // Se filho é homozigoto (A, A)
                     if (f[0] === f[1]) {
-                        // Mãe tem A? Sim -> Pai tem que ter A.
                         patOblig = f[0]; 
                     } else {
-                        // Filho Heterozigoto (A, B)
                         const aFromMother = m.includes(f[0]);
                         const bFromMother = m.includes(f[1]);
-
-                        if (aFromMother && !bFromMother) patOblig = f[1]; // Mãe deu A, Pai deu B
-                        else if (!aFromMother && bFromMother) patOblig = f[0]; // Mãe deu B, Pai deu A
-                        else if (aFromMother && bFromMother) patOblig = "Ambíguo"; // Mãe tem ambos, não sabemos qual veio dela
-                        else patOblig = "Erro"; // Mãe não tem nenhum (Mutação materna rara)
+                        if (aFromMother && !bFromMother) patOblig = f[1]; 
+                        else if (!aFromMother && bFromMother) patOblig = f[0]; 
+                        else if (aFromMother && bFromMother) patOblig = "Ambíguo"; 
+                        else patOblig = "Erro"; 
                     }
 
                     let isInc = false;
-                    // Checar SP
                     if (patOblig === "Ambíguo") {
                         isInc = sp.includes(f[0]) || sp.includes(f[1]);
                     } else if (patOblig && patOblig !== "Erro") {
@@ -287,22 +281,16 @@
 
                     let ip = 0;
                     if (isInc) {
-                        // Cálculo IP = X / Y
-                        // Y = Frequência do Alelo Paterno na população
-                        const alleleToCheck = (patOblig === "Ambíguo") ? f[0] : patOblig; // Simplificação
+                        const alleleToCheck = (patOblig === "Ambíguo") ? f[0] : patOblig; 
                         const y = LOCI_DATA[locus][alleleToCheck] || 0.01;
-                        
-                        // X = Chance de transmissão (1 se homozigoto, 0.5 se hetero)
                         const spHomo = sp[0] === sp[1];
                         const x = spHomo ? 1.0 : 0.5;
-                        
                         ip = x / y;
                         cpi *= ip;
                     } else {
                         exclusionCount++;
                         cpi = 0;
                     }
-
                     details.push({ locus, patOblig, isInc, ip: ip.toFixed(2) });
                 });
 
@@ -318,17 +306,17 @@
 
             return (
                 <div className="animate-fade">
-                    <Card title="Simulador de Paternidade (Trio)">
+                    <Card title={<><Icons.Dna /> Simulador de Paternidade (Trio)</>}>
                         <p className="mb-4 text-sm text-slate-600">Insira os alelos. O sistema determina o Alelo Paterno Obrigatório e calcula o Índice de Paternidade (IP).</p>
                         <div className="grid md:grid-cols-3 gap-4 mb-6">
                             {['m', 'f', 'sp'].map(type => (
                                 <div key={type} className={`p-3 rounded border ${type === 'm' ? 'bg-pink-50 border-pink-200' : type === 'f' ? 'bg-purple-50 border-purple-200' : 'bg-blue-50 border-blue-200'}`}>
-                                    <h4 className="font-bold text-center mb-2 uppercase text-xs">
-                                        {type === 'm' ? 'Mãe' : type === 'f' ? 'Filho(a)' : 'Suposto Pai'}
+                                    <h4 className="font-bold text-center mb-2 uppercase text-xs flex items-center justify-center gap-1">
+                                        {type === 'm' ? 'Mãe' : type === 'f' ? 'Filho(a)' : <><Icons.Dna /> SP</>}
                                     </h4>
                                     {LOCI_NAMES.map(l => (
                                         <div key={l} className="flex gap-1 mb-2 items-center justify-center">
-                                            <span className="w-8 font-mono text-xs font-bold">{l}</span>
+                                            <span className="w-8 font-mono text-xs font-bold text-slate-500">{l}</span>
                                             <SelectAllele value={data[l][type][0]} onChange={v => handleChange(l, type, 0, v)} options={Object.keys(LOCI_DATA[l])} />
                                             <SelectAllele value={data[l][type][1]} onChange={v => handleChange(l, type, 1, v)} options={Object.keys(LOCI_DATA[l])} />
                                         </div>
@@ -343,23 +331,23 @@
 
                     {result && (
                         <Card title="Laudo Pericial" accentColor={result.exclusionCount >= 2 ? "red" : "green"}>
-                            <div className="flex flex-col md:flex-row justify-between items-center bg-slate-800 text-white p-4 rounded mb-4">
+                            <div className="flex flex-col md:flex-row justify-between items-center bg-slate-800 text-white p-4 rounded mb-4 shadow-inner">
                                 <div>
-                                    <p className="text-xs text-slate-400">Índice Combinado (IPC)</p>
+                                    <p className="text-xs text-slate-400 uppercase tracking-wide">Índice Combinado (IPC)</p>
                                     <p className="text-2xl font-mono text-yellow-400">{result.cpi.toFixed(2)}</p>
                                 </div>
                                 <div className="text-right mt-2 md:mt-0">
-                                    <p className="text-xs text-slate-400">Probabilidade (W)</p>
+                                    <p className="text-xs text-slate-400 uppercase tracking-wide">Probabilidade (W)</p>
                                     <p className="text-2xl font-bold">{(result.w * 100).toFixed(6)}%</p>
                                 </div>
                             </div>
                             
                             <div className="overflow-x-auto">
                                 <table className="w-full text-sm text-left">
-                                    <thead className="text-xs uppercase bg-slate-100 text-slate-600">
+                                    <thead className="text-xs uppercase bg-slate-100 text-slate-600 border-b">
                                         <tr>
                                             <th className="p-2">Locus</th>
-                                            <th className="p-2">Alelo Obrigatório</th>
+                                            <th className="p-2">Obrigatório</th>
                                             <th className="p-2">Status</th>
                                             <th className="p-2 text-right">IP</th>
                                         </tr>
@@ -368,9 +356,9 @@
                                         {result.details.map((d, i) => (
                                             <tr key={i} className="border-b hover:bg-slate-50">
                                                 <td className="p-2 font-bold">{d.locus}</td>
-                                                <td className="p-2 text-blue-600">{d.patOblig}</td>
-                                                <td className={`p-2 font-bold ${d.isInc ? 'text-emerald-600' : 'text-rose-600'}`}>
-                                                    {d.isInc ? 'Inclusão' : 'Exclusão'}
+                                                <td className="p-2 text-blue-600 font-mono">{d.patOblig}</td>
+                                                <td className={`p-2 font-bold flex items-center gap-1 ${d.isInc ? 'text-emerald-600' : 'text-rose-600'}`}>
+                                                    {d.isInc ? <Icons.Check /> : <Icons.Alert />} {d.isInc ? 'Inclusão' : 'Exclusão'}
                                                 </td>
                                                 <td className="p-2 text-right font-mono">{d.ip}</td>
                                             </tr>
@@ -384,14 +372,14 @@
             );
         };
 
-        // --- MODAL DE AJUDA (Texto Puro, sem LaTeX) ---
+        // --- MODAL DE AJUDA ---
         const InfoModal = ({ onClose }) => (
             <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50 animate-fade">
                 <div className="bg-white rounded-lg max-w-md w-full p-6 shadow-2xl">
                     <h3 className="text-xl font-bold mb-4 flex items-center gap-2"><Icons.Info /> Referência Teórica</h3>
                     <div className="space-y-4 text-sm text-slate-700">
                         <div className="p-3 bg-slate-100 rounded">
-                            <h4 className="font-bold text-blue-700">Crimes (Hardy-Weinberg)</h4>
+                            <h4 className="font-bold text-blue-700 flex items-center gap-2"><Icons.Knife /> Crimes (Hardy-Weinberg)</h4>
                             <p>Probabilidade de um perfil na população:</p>
                             <ul className="list-disc ml-5 mt-1 text-xs">
                                 <li>Homozigoto (A, A) = p * p</li>
@@ -399,7 +387,7 @@
                             </ul>
                         </div>
                         <div className="p-3 bg-slate-100 rounded">
-                            <h4 className="font-bold text-blue-700">Paternidade (Índice IP)</h4>
+                            <h4 className="font-bold text-blue-700 flex items-center gap-2"><Icons.Dna /> Paternidade (Índice IP)</h4>
                             <p>IP = X / Y</p>
                             <ul className="list-disc ml-5 mt-1 text-xs">
                                 <li>X = Chance do SP transmitir o alelo (1 ou 0.5)</li>
@@ -409,7 +397,7 @@
                         </div>
                     </div>
                     <div className="mt-6 text-right">
-                        <button onClick={onClose} className="bg-slate-800 text-white px-4 py-2 rounded hover:bg-slate-700">Fechar</button>
+                        <button onClick={onClose} className="bg-slate-800 text-white px-4 py-2 rounded hover:bg-slate-700 transition shadow">Fechar</button>
                     </div>
                 </div>
             </div>
@@ -425,29 +413,29 @@
                     <header className="bg-slate-900 text-white p-4 shadow-lg sticky top-0 z-10">
                         <div className="container mx-auto flex justify-between items-center">
                             <div className="flex items-center gap-3">
-                                <div className="bg-blue-600 p-2 rounded-full"><Icons.Dna /></div>
+                                <div className="bg-blue-600 p-2 rounded-full shadow-lg"><Icons.Dna /></div>
                                 <div>
                                     <h1 className="text-xl font-bold leading-tight">BioForensic Lab</h1>
                                     <p className="text-xs text-slate-400">Calculadora Pericial</p>
                                 </div>
                             </div>
-                            <button onClick={() => setShowModal(true)} className="text-sm flex items-center gap-1 bg-slate-800 px-3 py-2 rounded hover:bg-slate-700 transition">
+                            <button onClick={() => setShowModal(true)} className="text-sm flex items-center gap-1 bg-slate-800 px-3 py-2 rounded hover:bg-slate-700 transition border border-slate-700 shadow">
                                 <Icons.Info /> <span className="hidden md:inline">Teoria</span>
                             </button>
                         </div>
                     </header>
 
-                    <nav className="bg-white border-b mb-8">
+                    <nav className="bg-white border-b mb-8 shadow-sm">
                         <div className="container mx-auto flex overflow-x-auto">
                             {[
                                 { id: 'paternity', label: 'Paternidade', icon: <Icons.Dna /> },
-                                { id: 'crime', label: 'Criminal (CSI)', icon: <Icons.FileCheck /> },
-                                { id: 'workflow', label: 'Fluxo Lab', icon: <Icons.Microscope /> }
+                                { id: 'crime', label: 'Criminal (CSI)', icon: <Icons.Knife /> },
+                                { id: 'workflow', label: 'Fluxo Lab', icon: <Icons.Pipette /> }
                             ].map(t => (
                                 <button 
                                     key={t.id}
                                     onClick={() => setTab(t.id)}
-                                    className={`flex items-center gap-2 px-6 py-4 border-b-2 font-medium transition-colors whitespace-nowrap ${tab === t.id ? 'border-blue-600 text-blue-600 bg-blue-50' : 'border-transparent text-slate-500 hover:text-slate-700'}`}
+                                    className={`flex items-center gap-2 px-6 py-4 border-b-2 font-medium transition-colors whitespace-nowrap ${tab === t.id ? 'border-blue-600 text-blue-600 bg-blue-50' : 'border-transparent text-slate-500 hover:text-slate-700 hover:bg-slate-50'}`}
                                 >
                                     {t.icon} {t.label}
                                 </button>
@@ -460,6 +448,10 @@
                         {tab === 'crime' && <CrimeSimulator />}
                         {tab === 'workflow' && <WorkflowView />}
                     </main>
+
+                    <footer className="mt-12 text-center text-xs text-slate-400 pb-6">
+                        Desenvolvido para fins educacionais • BioForensic Lab 2025
+                    </footer>
 
                     {showModal && <InfoModal onClose={() => setShowModal(false)} />}
                 </div>
