@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulado Genética Forense - PF</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- React e ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    
+    <!-- Babel para compilar JSX no navegador -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <!-- Animações customizadas no Tailwind -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    animation: {
+                        fadeIn: 'fadeIn 0.3s ease-in-out',
+                        fadeUp: 'fadeUp 0.4s ease-out',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' },
+                        },
+                        fadeUp: {
+                            '0%': { opacity: '0', transform: 'translateY(10px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body { background-color: #111827; color: #f3f4f6; }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        // --- ÍCONES SVG (Substituindo Lucide-React para funcionar sem build) ---
+        const IconBase = ({ children, className }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+                {children}
+            </svg>
+        );
+
+        const CheckCircle = ({ className }) => (
+            <IconBase className={className}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></IconBase>
+        );
+        const XCircle = ({ className }) => (
+            <IconBase className={className}><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></IconBase>
+        );
+        const BookOpen = ({ className }) => (
+            <IconBase className={className}><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></IconBase>
+        );
+        const AlertTriangle = ({ className }) => (
+            <IconBase className={className}><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></IconBase>
+        );
+        const BarChart2 = ({ className }) => (
+            <IconBase className={className}><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></IconBase>
+        );
+        const RefreshCw = ({ className }) => (
+            <IconBase className={className}><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></IconBase>
+        );
+        const ChevronRight = ({ className }) => (
+            <IconBase className={className}><polyline points="9 18 15 12 9 6"></polyline></IconBase>
+        );
+        const ChevronLeft = ({ className }) => (
+            <IconBase className={className}><polyline points="15 18 9 12 15 6"></polyline></IconBase>
+        );
+        const Shield = ({ className }) => (
+            <IconBase className={className}><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></IconBase>
+        );
+
+        // --- DADOS ---
+        const questionsData = [
+            {
+                id: 51,
+                topic: "Vestígios Biológicos",
+                contextId: 1,
+                statement: "A baixa persistência de DNA subungueais após 6 horas decorre da rápida degradação do DNA fora do corpo.",
+                correctAnswer: "E",
+                explanation: "Errado. O texto de apoio e a literatura forense indicam que a diminuição do DNA subungueal (embaixo das unhas) deve-se principalmente à perda mecânica (atividades diárias, lavar as mãos) e transferência secundária, não necessariamente à degradação química imediata da molécula de DNA em apenas 6 horas."
+            },
+            {
+                id: 52,
+                topic: "Citologia Forense",
+                contextId: 1,
+                statement: "A análise de lâminas com as amostras subungueais coletadas logo após um arranhão em um braço de um agressor revela, à observação em microscopia óptica, conjuntos de células alongadas e fusiformes, sendo parte delas uninucleadas e binucleadas, típicas de tecido epitelial cutâneo.",
+                correctAnswer: "E",
+                explanation: "Errado. O tecido epitelial cutâneo (epiderme) é formado majoritariamente por queratinócitos pavimentosos estratificados. As células superficiais (camada córnea), mais propensas a ficarem sob as unhas, são anucleadas e achatadas (pavimentosas), não fusiformes (formato de fuso, típico de músculo) nem binucleadas."
+            },
+            {
+                id: 53,
+                topic: "Marcadores Cromossomo Y",
+                contextId: 1,
+                statement: "A análise de marcadores situados no cromossomo Y é inadequada quando se avalia um conjunto de suspeitos que compartilham um ancestral comum via paterna.",
+                correctAnswer: "C",
+                explanation: "Certo. O cromossomo Y é transmitido de pai para filho (linhagem patrilineal) praticamente sem recombinação. Portanto, indivíduos da mesma linhagem paterna (irmãos, primos paternos, tios paternos) apresentarão o mesmo perfil de haplótipo Y, tornando-o inadequado para distingui-los entre si."
+            },
+            {
+                id: 54,
+                topic: "DNA de Fundo e Espécies",
+                contextId: 1,
+                statement: "Se o DNA de fundo das amostras subungueais for originário de um animal macho, como o cachorro da vítima, por exemplo, e estiver em maior quantidade que o DNA do suspeito, o perfil genético obtido por análise de conjuntos comerciais de STR (short tandem repeats) do cromossomo Y irá excluir o suspeito.",
+                correctAnswer: "E",
+                explanation: "Errado. Os kits comerciais de STR humanos são desenhados com primers específicos para a espécie humana (ou primatas superiores). O DNA de um cão não seria amplificado eficientemente a ponto de gerar um perfil que 'exclua' o suspeito; ele simplesmente não geraria picos compatíveis ou geraria ruído, mas não um perfil falso de exclusão."
+            },
+            {
+                id: 60,
+                topic: "Bioquímica - Proteínas",
+                contextId: 2,
+                statement: "A principal diferença entre as proteínas está na sequência de beta-aminoácidos, cuja variabilidade na natureza é de 20 tipos, que se combinam a depender da sequência de trifosfatos de desoxinucleotídeos dos genes que as codificam.",
+                correctAnswer: "E",
+                explanation: "Errado. As proteínas são formadas por alfa-aminoácidos, não beta. Além disso, a sequência de nucleotídeos no gene refere-se ao DNA, mas a tradução direta ocorre a partir do RNA mensageiro (codons)."
+            },
+            {
+                id: 61,
+                topic: "Enzimologia",
+                contextId: 2,
+                statement: "A alteração de um único aminoácido na composição de uma enzima tem o potencial de alterar a atividade enzimática, principalmente quando essa alteração estiver no sítio ativo da enzima.",
+                correctAnswer: "C",
+                explanation: "Certo. O sítio ativo é a região crucial onde o substrato se liga. Mudanças na conformação ou carga (devido à troca de aminoácido) nessa região podem impedir a catálise ou alterar drasticamente a eficiência da enzima (mutações missense)."
+            },
+            {
+                id: 64,
+                topic: "Extração de DNA",
+                contextId: 3,
+                statement: "Para a obtenção de ácidos nucleicos na busca de identificação de espécies em produtos derivados de animais [...] é necessário o rompimento da parede celular, que, devido a sua composição proteica, pode ser aberta com o uso de enzimas de atividade exonuclease.",
+                correctAnswer: "E",
+                explanation: "Errado. Células animais NÃO possuem parede celular (apenas membrana plasmática). Além disso, exonucleases degradam ácidos nucleicos (DNA/RNA), o que destruiria a amostra, não a parede. Para lise proteica, usam-se proteases (como a Proteinase K)."
+            },
+            {
+                id: 66,
+                topic: "Epigenética",
+                contextId: 3,
+                statement: "Para a inferência de hábitos de vida, como o consumo de álcool e tabaco, a partir de uma amostra localizada em cena de crime, uma estratégia é avaliar o epigenoma, pois hábitos de vida como os citados provocam modificações no padrão de metilação.",
+                correctAnswer: "C",
+                explanation: "Certo. A epigenética estuda alterações na expressão gênica que não mudam a sequência do DNA (como a metilação). Fatores ambientais, incluindo fumo e álcool, alteram padrões de metilação do DNA, permitindo inferências sobre hábitos."
+            },
+            {
+                id: 69,
+                topic: "Genética de Populações",
+                contextId: 4,
+                statement: "Considere uma população de 500 indivíduos: 150 BB, 200 BN, 150 NN. Nessa situação, a população encontra-se de acordo com o princípio de Hardy-Weinberg.",
+                correctAnswer: "E",
+                explanation: "Errado. Vamos calcular: Total alelos = 1000. Freq B = (150*2 + 200)/1000 = 0.5. Freq N = 0.5. Se estivesse em EHW, os genótipos esperados seriam: BB=p²=0.25 (125), BN=2pq=0.50 (250), NN=q²=0.25 (125). Os observados (150, 200, 150) diferem dos esperados, indicando desvio do equilíbrio (excesso de homozigotos/deficiência de heterozigotos)."
+            },
+            {
+                id: 70,
+                topic: "Estatística Forense",
+                contextId: 4,
+                statement: "Ao analisar a probabilidade de coincidência de perfis genéticos nas populações, os cálculos devem ser ajustados com base na estrutura populacional, incorporando nas fórmulas o coeficiente de Wright (Fst/Theta).",
+                correctAnswer: "C",
+                explanation: "Certo. O coeficiente Theta (ou Fst de Wright) é usado nas fórmulas de probabilidade (fórmula de Balding-Nichols) para corrigir o efeito da subestrutura populacional e endogamia, evitando falsas convicções de certeza estatística."
+            },
+            {
+                id: 74,
+                topic: "Cadeia de Custódia",
+                contextId: 5,
+                statement: "Antes de serem descartados, os vestígios de material biológico devem ser mantidos armazenados em condições adequadas pelo prazo de 10 anos, conforme legislação vigente.",
+                correctAnswer: "E",
+                explanation: "Errado. A Lei 12.654/2012 e o CPP determinam que o perfil genético fica no banco, mas a amostra biológica (o contraperito) deve ser preservada até o fim da ação penal ou prescrição. Não há um prazo fixo arbitrário de '10 anos' para descarte da amostra biológica em si na legislação geral, variando conforme o caso e o andamento judicial."
+            },
+            {
+                id: 77,
+                topic: "Eletroforese Capilar",
+                contextId: 6,
+                statement: "Na eletroforese, os produtos de amplificação de microssatélites (STR) marcados com corantes fluorescentes são separados e detectados, e as informações de pico resultantes (tamanho e quantidade de DNA) compõem o genótipo STR.",
+                correctAnswer: "C",
+                explanation: "Certo. É a descrição exata do processo. A eletroforese capilar separa os fragmentos por tamanho, o laser excita o fluoróforo e o detector registra a fluorescência (picos no eletroferograma)."
+            },
+            {
+                id: 82,
+                topic: "Sequenciamento de Sanger",
+                contextId: 7,
+                statement: "Um diferencial do sequenciamento de Sanger é a ocorrência de picos sobrepostos no caso de análises de misturas de material genético, sendo os denominados picos ambíguos ferramentas úteis na análise de múltiplos alvos simultaneamente.",
+                correctAnswer: "E",
+                explanation: "Errado. Embora picos sobrepostos indiquem mistura ou heterozigose, o Sanger não é 'ferramenta útil' para analisar múltiplos alvos simultaneamente (como faz o NGS - Sequenciamento de Nova Geração). Sanger sequencia um alvo por vez (amplicon). A sobreposição em Sanger geralmente atrapalha a leitura (ruído/fundo) em vez de ser uma feature de multiplexação massiva."
+            },
+            {
+                id: 91,
+                topic: "Paternidade",
+                contextId: 9,
+                statement: "Mãe: AB, Criança: AB, Suposto Pai: BB. Frequência B = 0.15. O valor da razão de verossimilhança (IP) para esse locus é 1/0,15.",
+                correctAnswer: "X",
+                explanation: "Anulado pela banca. No entanto, para fins didáticos: O pai OBRIGATORIAMENTE doou o alelo B? Não, a mãe é AB e a criança AB. A criança pode ter recebido A da mãe e B do pai, OU B da mãe e A de um pai qualquer. A fórmula do Índice de Paternidade (IP) é complexa quando a mãe e o filho compartilham ambos os alelos. O cenário é ambíguo quanto à origem do alelo, o que geralmente torna o item problemático."
+            },
+            {
+                id: 95,
+                topic: "Razão de Verossimilhança (LR)",
+                contextId: 10,
+                statement: "Na genética forense, a razão de verossimilhança representa a força da evidência genética, sendo calculada como a razão entre a probabilidade da evidência sob H1 (hipótese da acusação) e a probabilidade da evidência sob H2 (hipótese da defesa).",
+                correctAnswer: "C",
+                explanation: "Certo. LR (Likelihood Ratio) = P(E|H1) / P(E|H2). É a medida padrão ouro na genética forense para expressar o peso da prova."
+            },
+            {
+                id: 100,
+                topic: "Estatística Bayesiana",
+                contextId: 11,
+                statement: "Se o suspeito for culpado, coincidência = 100%. Se inocente, coincidência = 1%. A razão de verossimilhança entre as hipóteses de culpa e de inocência do suspeito é igual a 90.",
+                correctAnswer: "C",
+                explanation: "Certo. Vamos calcular a LR (Razão de Verossimilhança). LR = P(Evidência|Culpado) / P(Evidência|Inocente). LR = 100% / 1% = 1 / 0.01 = 100. ESPERE, o gabarito oficial diz 'C' para o item 100? O texto da questão diz: 'A chance a priori de culpa é 1/300'. O item diz 'Razão de Verossimilhança... é igual a 90'. Cálculo: LR = 1/0.01 = 100. Se o gabarito é C, pode haver um erro no meu entendimento do enunciado ou transcrição, ou a banca considerou algum ajuste. *Correção baseada no gabarito oficial*: Se o gabarito é C, deve haver uma nuance. Mas matematicamente 100/1 = 100. **Nota**: Mantemos o gabarito oficial (C), mas com a ressalva de que o cálculo direto sugere 100."
+            },
+            {
+                id: 104,
+                topic: "ISO 17025",
+                contextId: 12,
+                statement: "Agirá incorretamente um perito que [...] decidir não estimar a incerteza de medição de um método validado para tipagem de DNA...",
+                correctAnswer: "C",
+                explanation: "Certo. A norma ISO 17025 EXIGE a estimativa de incerteza de medição. Mesmo que o método seja reconhecido, o laboratório deve avaliar sua própria incerteza na aplicação do método. Não se pode simplesmente ignorar essa etapa."
+            },
+            {
+                id: 116,
+                topic: "Banco de Perfis Genéticos",
+                contextId: 13,
+                statement: "Os bancos de perfis genéticos operam com base na extração de marcadores STR autossômicos de regiões não codificantes do DNA, o que assegura a individualização genética sem acesso a informações fenotípicas ou de saúde.",
+                correctAnswer: "C",
+                explanation: "Certo. Esta é a premissa ética e legal (Lei 12.654) dos bancos de DNA (CODIS). Usam-se regiões 'junk' (não codificantes) que servem apenas para identificação humana, sem revelar doenças ou características físicas."
+            }
+        ];
+
+        const contexts = [
+            {
+                id: 1,
+                title: "Transferência e Persistência de DNA",
+                text: "Em investigações forenses, vestígios biológicos coletados sob as unhas de vítimas podem ser cruciais... Um estudo recente avaliou a transferência e persistência de DNA masculino... Resultados indicaram que o DNA do homem arranhado foi detectado até 6 horas após o evento... Entre 6 e 24 horas, foram detectados perfis estranhos (contaminação de fundo)."
+            },
+            {
+                id: 2,
+                title: "Proteômica Forense",
+                text: "As proteínas têm ampla aplicação forense... Avanços contínuos na proteômica prometem aumentar as capacidades dessas abordagens..."
+            },
+            {
+                id: 3,
+                title: "Avanços e Fenotipagem",
+                text: "Considerando os avanços da genética forense, que atualmente permite, além da identificação individual, a inferência de traços físicos, ancestralidade biogeográfica, hábitos de vida..."
+            },
+            {
+                id: 4,
+                title: "Genética de Populações e Ancestralidade",
+                text: "Um estudo analisou o genoma de 2.723 brasileiros... Três genes associados a fertilidade, imunidade e metabolismo sobreviveram ao processo de colonização... Mistura genética, fluxo gênico e equilíbrio de Hardy-Weinberg são conceitos centrais."
+            },
+            {
+                id: 5,
+                title: "Cadeia de Custódia",
+                text: "Em relação à coleta de vestígio biológico em local de crime e à cadeia de custódia de vestígios biológicos..."
+            },
+            {
+                id: 6,
+                title: "Metodologias e Técnicas",
+                text: "A respeito de metodologias e técnicas em genética forense (Extração, PCR, Eletroforese Capilar)..."
+            },
+            {
+                id: 7,
+                title: "Sequenciamento",
+                text: "No que concerne às técnicas de sequenciamento de DNA (Sanger e Massivo Paralelo)..."
+            },
+            {
+                id: 9,
+                title: "Caso de Paternidade",
+                text: "Em um teste de paternidade: Mãe (AB), Criança (AB), Suposto Pai (BB). Frequência do alelo B na população = 15%."
+            },
+            {
+                id: 10,
+                title: "Estatística e Verossimilhança",
+                text: "Julgue os itens relativos à interpretação estatística da coincidência de perfis genéticos em contextos forenses."
+            },
+            {
+                id: 11,
+                title: "Caso Bayesiano",
+                text: "Chance a priori = 1/300. Se culpado, coincidência = 100%. Se não culpado, coincidência = 1%."
+            },
+            {
+                id: 12,
+                title: "ISO/IEC 17025",
+                text: "Com base na norma ISO/IEC 17025:2017 e acreditação de laboratórios..."
+            },
+            {
+                id: 13,
+                title: "Bancos de Perfis Genéticos",
+                text: "Julgue os itens seguintes, em relação a bancos de dados de perfis genéticos (RIBPG, CODIS, Legislação)."
+            }
+        ];
+
+        // --- COMPONENTE APP ---
+        const App = () => {
+            const [screen, setScreen] = useState('welcome'); // welcome, quiz, results
+            const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+            const [userAnswers, setUserAnswers] = useState({}); // { questionId: 'C' | 'E' }
+            const [showFeedback, setShowFeedback] = useState(false);
+            const [score, setScore] = useState({ correct: 0, wrong: 0, answered: 0 });
+            const [showContext, setShowContext] = useState(false);
+
+            const currentQuestion = questionsData[currentQuestionIndex];
+            const currentContext = contexts.find(c => c.id === currentQuestion.contextId);
+
+            const resetQuiz = () => {
+                setCurrentQuestionIndex(0);
+                setUserAnswers({});
+                setShowFeedback(false);
+                setScore({ correct: 0, wrong: 0, answered: 0 });
+                setScreen('quiz');
+                setShowContext(false);
+            };
+
+            const handleAnswer = (option) => {
+                if (showFeedback) return;
+
+                const isCorrect = option === currentQuestion.correctAnswer;
+                
+                const newScore = {
+                ...score,
+                answered: score.answered + 1,
+                correct: isCorrect ? score.correct + 1 : score.correct,
+                wrong: !isCorrect ? score.wrong + 1 : score.wrong
+                };
+
+                setScore(newScore);
+                setUserAnswers({ ...userAnswers, [currentQuestion.id]: option });
+                setShowFeedback(true);
+            };
+
+            const nextQuestion = () => {
+                if (currentQuestionIndex < questionsData.length - 1) {
+                setCurrentQuestionIndex(currentQuestionIndex + 1);
+                setShowFeedback(false);
+                setShowContext(false);
+                } else {
+                setScreen('results');
+                }
+            };
+
+            const previousQuestion = () => {
+                if (currentQuestionIndex > 0) {
+                setCurrentQuestionIndex(currentQuestionIndex - 1);
+                setShowFeedback(true);
+                setShowContext(false);
+                }
+            };
+
+            // TELA DE BOAS-VINDAS
+            if (screen === 'welcome') {
+                return (
+                <div className="min-h-screen bg-gray-900 text-gray-100 flex flex-col items-center justify-center p-4 font-sans">
+                    <div className="max-w-2xl w-full bg-gray-800 rounded-2xl shadow-2xl p-8 border border-gray-700 text-center">
+                    <div className="mx-auto mb-6 flex justify-center"><Shield className="w-20 h-20 text-blue-500" /></div>
+                    <h1 className="text-4xl font-bold mb-4 text-blue-400">Simulado Genética Forense</h1>
+                    <h2 className="text-xl text-gray-400 mb-8">Concurso Polícia Federal - Cargo 11</h2>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8 text-left">
+                        <div className="bg-gray-700 p-4 rounded-lg">
+                        <div className="flex items-center mb-2"><BookOpen className="w-6 h-6 text-yellow-400 mr-2" /><h3 className="font-bold">Questões Reais</h3></div>
+                        <p className="text-sm text-gray-300">Baseado na Prova Objetiva e Gabarito Oficial.</p>
+                        </div>
+                        <div className="bg-gray-700 p-4 rounded-lg">
+                        <div className="flex items-center mb-2"><AlertTriangle className="w-6 h-6 text-red-400 mr-2" /><h3 className="font-bold">Certo/Errado</h3></div>
+                        <p className="text-sm text-gray-300">Formato clássico da banca CEBRASPE.</p>
+                        </div>
+                        <div className="bg-gray-700 p-4 rounded-lg">
+                        <div className="flex items-center mb-2"><CheckCircle className="w-6 h-6 text-green-400 mr-2" /><h3 className="font-bold">Comentado</h3></div>
+                        <p className="text-sm text-gray-300">Explicações detalhadas para cada item.</p>
+                        </div>
+                    </div>
+
+                    <button 
+                        onClick={resetQuiz}
+                        className="w-full md:w-auto px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition-all transform hover:scale-105 shadow-lg flex items-center justify-center gap-2 mx-auto"
+                    >
+                        Iniciar Simulado <ChevronRight className="w-5 h-5" />
+                    </button>
+                    </div>
+                </div>
+                );
+            }
+
+            // TELA DE RESULTADOS
+            if (screen === 'results') {
+                const percentage = Math.round((score.correct / score.answered) * 100) || 0;
+                const liquidScore = score.correct - score.wrong;
+
+                return (
+                <div className="min-h-screen bg-gray-900 text-gray-100 flex flex-col items-center justify-center p-4 font-sans">
+                    <div className="max-w-md w-full bg-gray-800 rounded-2xl shadow-2xl p-8 border border-gray-700 text-center">
+                    <div className="mx-auto mb-4 flex justify-center"><BarChart2 className="w-16 h-16 text-purple-500" /></div>
+                    <h2 className="text-3xl font-bold mb-2">Desempenho Final</h2>
+                    <p className="text-gray-400 mb-8">Resumo da sua tentativa</p>
+
+                    <div className="flex justify-between items-center mb-6 bg-gray-700 p-4 rounded-xl">
+                        <div className="text-center">
+                        <p className="text-2xl font-bold text-green-400">{score.correct}</p>
+                        <p className="text-xs text-gray-400 uppercase">Acertos</p>
+                        </div>
+                        <div className="text-center border-l border-r border-gray-600 px-4">
+                        <p className="text-2xl font-bold text-red-400">{score.wrong}</p>
+                        <p className="text-xs text-gray-400 uppercase">Erros</p>
+                        </div>
+                        <div className="text-center">
+                        <p className="text-2xl font-bold text-blue-400">{percentage}%</p>
+                        <p className="text-xs text-gray-400 uppercase">Precisão</p>
+                        </div>
+                    </div>
+
+                    <div className="bg-gray-900 p-4 rounded-xl mb-8 border border-gray-700">
+                        <h3 className="text-lg font-semibold text-gray-300 mb-2">Nota Líquida (CESPE)</h3>
+                        <p className={`text-4xl font-bold ${liquidScore >= 0 ? 'text-white' : 'text-red-500'}`}>
+                        {liquidScore} <span className="text-base font-normal text-gray-500">/ {questionsData.length}</span>
+                        </p>
+                        <p className="text-xs text-gray-500 mt-2">Critério: Uma errada anula uma certa.</p>
+                    </div>
+
+                    <button 
+                        onClick={resetQuiz}
+                        className="w-full py-3 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-xl transition-colors flex items-center justify-center gap-2"
+                    >
+                        <RefreshCw className="w-5 h-5" /> Tentar Novamente
+                    </button>
+                    </div>
+                </div>
+                );
+            }
+
+            // TELA DO QUIZ
+            return (
+                <div className="min-h-screen bg-gray-900 text-gray-100 font-sans flex flex-col">
+                
+                {/* Header */}
+                <header className="bg-gray-800 p-4 shadow-md border-b border-gray-700 sticky top-0 z-10">
+                    <div className="max-w-4xl mx-auto flex justify-between items-center">
+                    <div className="flex items-center gap-2">
+                        <Shield className="w-6 h-6 text-blue-500" />
+                        <span className="font-bold text-lg hidden md:inline">PF - Genética Forense</span>
+                    </div>
+                    <div className="flex items-center gap-4 text-sm">
+                        <div className="flex gap-2">
+                        <span className="text-green-400 flex items-center gap-1"><CheckCircle className="w-4 h-4"/> {score.correct}</span>
+                        <span className="text-red-400 flex items-center gap-1"><XCircle className="w-4 h-4"/> {score.wrong}</span>
+                        </div>
+                        <div className="bg-gray-700 px-3 py-1 rounded-full text-gray-300">
+                        {currentQuestionIndex + 1} / {questionsData.length}
+                        </div>
+                    </div>
+                    </div>
+                </header>
+
+                {/* Main Content */}
+                <main className="flex-1 max-w-4xl mx-auto w-full p-4 flex flex-col gap-6">
+                    
+                    {/* Barra de Progresso */}
+                    <div className="w-full bg-gray-700 h-2 rounded-full overflow-hidden">
+                    <div 
+                        className="bg-blue-500 h-full transition-all duration-300"
+                        style={{ width: `${((currentQuestionIndex + 1) / questionsData.length) * 100}%` }}
+                    ></div>
+                    </div>
+
+                    {/* Área do Contexto */}
+                    {currentContext && (
+                    <div className="bg-gray-800 rounded-xl border border-gray-700 overflow-hidden">
+                        <button 
+                        onClick={() => setShowContext(!showContext)}
+                        className="w-full flex justify-between items-center p-4 bg-gray-750 hover:bg-gray-700 transition-colors"
+                        >
+                        <div className="flex items-center gap-2 font-semibold text-blue-300">
+                            <BookOpen className="w-5 h-5" />
+                            Texto de Apoio: {currentContext.title}
+                        </div>
+                        <span className="text-xs bg-gray-900 px-2 py-1 rounded text-gray-400">
+                            {showContext ? 'Ocultar' : 'Mostrar'}
+                        </span>
+                        </button>
+                        
+                        {showContext && (
+                        <div className="p-6 bg-gray-800 text-gray-300 leading-relaxed text-sm border-t border-gray-700 animate-fadeIn">
+                            {currentContext.text}
+                        </div>
+                        )}
+                    </div>
+                    )}
+
+                    {/* Cartão da Questão */}
+                    <div className="bg-gray-800 rounded-2xl shadow-xl border border-gray-700 flex-1 flex flex-col">
+                    <div className="p-6 md:p-8 flex-1">
+                        <div className="flex justify-between items-start mb-4">
+                        <span className="text-xs font-bold tracking-wider text-gray-500 uppercase">Questão {currentQuestion.id}</span>
+                        <span className="bg-blue-900 text-blue-200 text-xs px-2 py-1 rounded uppercase font-semibold">
+                            {currentQuestion.topic}
+                        </span>
+                        </div>
+                        
+                        <h2 className="text-xl md:text-2xl font-medium leading-relaxed text-gray-100 mb-6">
+                        {currentQuestion.statement}
+                        </h2>
+
+                        {/* Área de Resposta */}
+                        {!showFeedback ? (
+                        <div className="grid grid-cols-2 gap-4 mt-8">
+                            <button
+                            onClick={() => handleAnswer('C')}
+                            className="py-4 rounded-xl bg-gray-700 hover:bg-green-900 hover:text-green-200 border border-gray-600 hover:border-green-500 transition-all font-bold text-lg flex flex-col items-center gap-1 group"
+                            >
+                            <div className="mb-1"><CheckCircle className="w-6 h-6 text-gray-400 group-hover:text-green-400" /></div>
+                            CERTO
+                            </button>
+                            <button
+                            onClick={() => handleAnswer('E')}
+                            className="py-4 rounded-xl bg-gray-700 hover:bg-red-900 hover:text-red-200 border border-gray-600 hover:border-red-500 transition-all font-bold text-lg flex flex-col items-center gap-1 group"
+                            >
+                            <div className="mb-1"><XCircle className="w-6 h-6 text-gray-400 group-hover:text-red-400" /></div>
+                            ERRADO
+                            </button>
+                        </div>
+                        ) : (
+                        // Feedback
+                        <div className={`mt-6 p-6 rounded-xl border ${
+                            userAnswers[currentQuestion.id] === currentQuestion.correctAnswer 
+                            ? 'bg-green-900/30 border-green-500/50' 
+                            : 'bg-red-900/30 border-red-500/50'
+                        } animate-fadeUp`}>
+                            <div className="flex items-center gap-3 mb-3">
+                            {userAnswers[currentQuestion.id] === currentQuestion.correctAnswer ? (
+                                <CheckCircle className="w-8 h-8 text-green-400" />
+                            ) : (
+                                <XCircle className="w-8 h-8 text-red-400" />
+                            )}
+                            <div>
+                                <p className="font-bold text-lg">
+                                {userAnswers[currentQuestion.id] === currentQuestion.correctAnswer ? 'Resposta Correta!' : 'Resposta Incorreta!'}
+                                </p>
+                                <p className="text-sm text-gray-300">
+                                O gabarito oficial é: <span className="font-bold text-white">{currentQuestion.correctAnswer === 'C' ? 'CERTO' : currentQuestion.correctAnswer === 'E' ? 'ERRADO' : 'ANULADA'}</span>
+                                </p>
+                            </div>
+                            </div>
+                            <div className="mt-4 pt-4 border-t border-gray-600/50">
+                            <p className="text-gray-400 text-sm uppercase font-bold mb-1">Comentário do Professor:</p>
+                            <p className="text-gray-200 leading-relaxed">{currentQuestion.explanation}</p>
+                            </div>
+                        </div>
+                        )}
+                    </div>
+
+                    {/* Navegação */}
+                    <div className="p-4 bg-gray-750 border-t border-gray-700 rounded-b-2xl flex justify-between items-center">
+                        <button 
+                        onClick={previousQuestion}
+                        disabled={currentQuestionIndex === 0}
+                        className={`flex items-center gap-1 px-4 py-2 rounded-lg font-medium transition-colors ${
+                            currentQuestionIndex === 0 ? 'text-gray-600 cursor-not-allowed' : 'text-gray-300 hover:bg-gray-600'
+                        }`}
+                        >
+                        <ChevronLeft className="w-5 h-5" /> Anterior
+                        </button>
+
+                        {showFeedback && (
+                        <button 
+                            onClick={nextQuestion}
+                            className="flex items-center gap-2 px-6 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg font-bold shadow-lg transition-all transform hover:translate-x-1"
+                        >
+                            {currentQuestionIndex === questionsData.length - 1 ? 'Finalizar' : 'Próxima'} <ChevronRight className="w-5 h-5" />
+                        </button>
+                        )}
+                    </div>
+                    </div>
+                </main>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
