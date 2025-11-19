@@ -5,792 +5,469 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BioForensic Lab - Workshop Interativo</title>
     
-    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
-    
+    <!-- Importação das Bibliotecas via CDN (Necessário para rodar sem instalação/Node.js) -->
+    <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    
     <script src="https://cdn.tailwindcss.com"></script>
     
+    <!-- Configuração de Cores -->
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
-                        'slate': {
-                            50: '#f8fafc',
-                            100: '#f1f5f9',
-                            200: '#e2e8f0',
-                            300: '#cbd5e1',
-                            400: '#94a3b8',
-                            500: '#64748b',
-                            600: '#475569',
-                            700: '#334155',
-                            800: '#1e293b',
-                            900: '#0f172a',
-                        },
-                    },
+                        slate: { 50: '#f8fafc', 100: '#f1f5f9', 200: '#e2e8f0', 800: '#1e293b', 900: '#0f172a' }
+                    }
                 }
             }
         }
     </script>
     <style>
-        /* Adiciona animação de fade in (estilo do Tailwind 'animate-fadeIn' customizado) */
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-        .animate-fadeIn {
-            animation: fadeIn 0.5s ease-in-out;
-        }
+        /* Animação suave de entrada */
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fade { animation: fadeIn 0.4s ease-out; }
     </style>
 </head>
-<body>
+<body class="bg-slate-50 text-slate-800">
     <div id="root"></div>
 
+    <!-- Script da Aplicação (Babel processa o JSX) -->
     <script type="text/babel">
-        // Importações simuladas de Lucide-React
-        const { useState, useCallback, useMemo } = React;
-        const { Dna, Microscope, Calculator, FileText, CheckCircle2, XCircle, Info, BookOpen, Activity, Zap } = window['lucide-react'] = {
-            Dna: ({ size, className, color = 'currentColor' }) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M10 10l-2 2 2 2m4 0l2-2-2-2m-4-6l-2 2 2 2m4 0l2-2-2-2m-2-4l-2 2 2 2m4 0l2-2-2-2m-2-4l-2 2 2 2m4 0l2-2-2-2m-4-4l-2 2 2 2m4 0l2-2-2-2M9 3v18M15 3v18"></path></svg>,
-            Microscope: ({ size, className, color = 'currentColor' }) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M6 18h8a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-1c0 2-2 4-4 4s-4-2-4-4H4a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2v-4M8 22V18M12 22V18M10 2a2 2 0 0 0-2 2v2M14 2a2 2 0 0 0 2 2v2"></path></svg>,
-            Calculator: ({ size, className, color = 'currentColor' }) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect x="4" y="2" width="16" height="20" rx="2" ry="2"></rect><line x1="8" y1="6" x2="16" y2="6"></line><line x1="8" y1="10" x2="16" y2="10"></line><line x1="8" y1="14" x2="16" y2="14"></line><line x1="8" y1="18" x2="16" y2="18"></line></svg>,
-            FileText: ({ size, className, color = 'currentColor' }) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7z"></path><path d="M14 2v4a2 2 0 0 0 2 2h4"></path><path d="M10 9H8"></path><path d="M16 13H8"></path><path d="M16 17H8"></path></svg>,
-            CheckCircle2: ({ size, className, color = 'currentColor' }) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10"></circle><path d="M9 12l2 2 4-4"></path></svg>,
-            XCircle: ({ size, className, color = 'currentColor' }) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>,
-            Info: ({ size, className, color = 'currentColor' }) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>,
-            BookOpen: ({ size, className, color = 'currentColor' }) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>,
-            Activity: ({ size, className, color = 'currentColor' }) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg>,
-            Zap: ({ size, className, color = 'currentColor' }) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+        const { useState, useMemo } = React;
+
+        // --- ÍCONES SVG (Inline para evitar dependências externas) ---
+        const Icons = {
+            Dna: () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10 10l-2 2 2 2m4 0l2-2-2-2m-4-6l-2 2 2 2m4 0l2-2-2-2m-2-4l-2 2 2 2m4 0l2-2-2-2m-4-4l-2 2 2 2m4 0l2-2-2-2M9 3v18M15 3v18"/></svg>,
+            Calc: () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" x2="16" y1="6" y2="6"/><line x1="8" x2="16" y1="10" y2="10"/><line x1="8" x2="16" y1="14" y2="14"/><line x1="8" x2="16" y1="18" y2="18"/></svg>,
+            Microscope: () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 18h8"/><path d="M3 22h18"/><path d="M14 22a7 7 0 1 0 0-14h-1"/><path d="M9 14h2"/><path d="M9 12a2 2 0 0 1-2-2V6h6v4a2 2 0 0 1-2 2Z"/><path d="M12 6V3a1 1 0 0 0-1-1H9a1 1 0 0 0-1 1v3"/></svg>,
+            FileCheck: () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><path d="m9 15 2 2 4-4"/></svg>,
+            Alert: () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>,
+            Info: () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="16" y2="12"/><line x1="12" x2="12.01" y1="8" y2="8"/></svg>
         };
 
-        // Seu código React/JSX começa aqui (copiado do App.jsx)
-        
-        // --- DADOS E UTILITÁRIOS ---
+        // --- DADOS DO WORKSHOP (Simplificados para didática) ---
+        const LOCI_DATA = {
+            vWA: { '14': 0.10, '15': 0.12, '16': 0.20, '17': 0.25, '18': 0.18, '19': 0.15 },
+            TH01: { '6': 0.25, '7': 0.30, '8': 0.15, '9': 0.15, '9.3': 0.15 },
+            TPOX: { '8': 0.40, '9': 0.30, '10': 0.20, '11': 0.05, '12': 0.05 },
+            CSF1PO: { '10': 0.25, '11': 0.30, '12': 0.30, '13': 0.10, '14': 0.05 }
+        };
+        const LOCI_NAMES = Object.keys(LOCI_DATA);
 
-        // Frequências alélicas simplificadas baseadas no Módulo 6 do documento
-        // Usamos chaves de string para os alelos (ex: '9.3')
-        const ALLELE_FREQUENCIES = {
-          vWA: { '14': 0.10, '15': 0.12, '16': 0.20, '17': 0.25, '18': 0.18, '19': 0.15 },
-          TH01: { '6': 0.25, '7': 0.30, '8': 0.15, '9': 0.15, '9.3': 0.15 },
-          TPOX: { '8': 0.40, '9': 0.30, '10': 0.20, '11': 0.05, '12': 0.05 },
-          CSF1PO: { '10': 0.25, '11': 0.30, '12': 0.30, '13': 0.10, '14': 0.05 }
+        // --- COMPONENTES DE UI ---
+        const Card = ({ title, children, accentColor = "blue" }) => {
+            const borderColor = accentColor === "green" ? "border-emerald-500" : accentColor === "red" ? "border-rose-500" : "border-blue-600";
+            return (
+                <div className={`bg-white rounded-xl shadow-lg p-6 mb-6 border-t-4 ${borderColor} animate-fade`}>
+                    <h3 className="text-xl font-bold text-slate-800 mb-4 flex items-center gap-2">{title}</h3>
+                    {children}
+                </div>
+            );
         };
 
-        const LOCI = Object.keys(ALLELE_FREQUENCIES);
+        const Button = ({ onClick, children, variant = "primary", disabled = false }) => {
+            const styles = {
+                primary: "bg-blue-600 text-white hover:bg-blue-700",
+                secondary: "bg-slate-200 text-slate-800 hover:bg-slate-300"
+            };
+            return (
+                <button 
+                    onClick={onClick} 
+                    disabled={disabled}
+                    className={`px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2 ${styles[variant]} ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+                >
+                    {children}
+                </button>
+            );
+        };
 
-        // Função auxiliar para formatar números
-        const formatPercent = (num) => (num * 100).toFixed(6) + '%';
-        const formatRMP = (num) => (1 / num).toExponential(2);
-
-        // --- COMPONENTES GENÉRICOS ---
-
-        const Card = ({ title, children, className = "" }) => (
-          <div className={`bg-white rounded-xl shadow-lg p-6 mb-6 border-t-4 border-blue-600 ${className}`}>
-            <h3 className="text-xl font-bold text-slate-800 mb-4 flex items-center gap-2">
-              {title}
-            </h3>
-            {children}
-          </div>
+        const SelectAllele = ({ label, value, onChange, options }) => (
+            <div className="flex flex-col">
+                <label className="text-xs font-bold text-slate-500 uppercase mb-1">{label}</label>
+                <select 
+                    value={value} 
+                    onChange={e => onChange(e.target.value)}
+                    className="border border-slate-300 rounded p-2 text-sm bg-white focus:ring-2 focus:ring-blue-500 outline-none"
+                >
+                    <option value="">Selecione</option>
+                    {options.map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                </select>
+            </div>
         );
 
-        const Button = ({ onClick, children, variant = "primary", disabled = false, type = "button" }) => {
-          const baseStyle = "px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center gap-2";
-          const variants = {
-            primary: "bg-blue-600 text-white hover:bg-blue-700 disabled:bg-blue-300",
-            secondary: "bg-slate-200 text-slate-800 hover:bg-slate-300 disabled:bg-slate-100",
-            success: "bg-emerald-600 text-white hover:bg-emerald-700",
-            danger: "bg-rose-600 text-white hover:bg-rose-700"
-          };
-          return (
-            <button type={type} onClick={onClick} disabled={disabled} className={`${baseStyle} ${variants[variant]}`}>
-              {children}
-            </button>
-          );
-        };
-
-        const LocusInput = ({ locus, value, onChange, label, availableAlleles }) => {
-          const [a1, a2] = value || ['', ''];
-
-          const handleChange = (index, val) => {
-            const newAlleles = [...value];
-            newAlleles[index] = val;
-            onChange(locus, newAlleles);
-          };
-
-          const getAlleleOptions = useMemo(() => {
-            return availableAlleles.map(allele => (
-              <option key={allele} value={allele}>
-                {allele}
-              </option>
-            ));
-          }, [availableAlleles]);
-
-          return (
-            <div className="flex flex-col mb-4 bg-slate-50 p-3 rounded-lg border">
-              <label className="text-xs font-semibold uppercase text-slate-600 mb-1">{label} ({locus})</label>
-              <div className="flex space-x-2">
-                <select
-                  value={a1}
-                  onChange={(e) => handleChange(0, e.target.value)}
-                  className="w-1/2 p-2 border border-slate-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 text-sm"
-                >
-                  <option value="" disabled>Alelo 1</option>
-                  {getAlleleOptions}
-                </select>
-                <select
-                  value={a2}
-                  onChange={(e) => handleChange(1, e.target.value)}
-                  className="w-1/2 p-2 border border-slate-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 text-sm"
-                >
-                  <option value="" disabled>Alelo 2</option>
-                  {getAlleleOptions}
-                </select>
-              </div>
-            </div>
-          );
-        };
-
-
-        // --- CÁLCULO HARDY-WEINBERG (MÓDULO 3) ---
-
-        const calculateRMP = (alleles) => {
-          const [a1, a2] = alleles.map(a => String(a));
-          const f = ALLELE_FREQUENCIES;
-
-          const p = f[a1] || 0; // Frequência do Alelo 1
-          const q = f[a2] || 0; // Frequência do Alelo 2
-
-          let freqFormula;
-          let freqValue;
-
-          if (a1 === a2) { // Homozigoto A1A1
-            freqValue = p * p;
-            freqFormula = `p² = ${p.toFixed(4)}² = ${freqValue.toPrecision(4)}`;
-          } else { // Heterozigoto A1A2
-            freqValue = 2 * p * q;
-            freqFormula = `2pq = 2 * ${p.toFixed(4)} * ${q.toFixed(4)} = ${freqValue.toPrecision(4)}`;
-          }
-
-          return { freqValue, freqFormula, p, q };
-        };
-
-        // --- CÁLCULO PATERNIDADE (MÓDULOS 4 E 5) ---
-
-        const analyzePaternityLocus = (locus, mother, child, father) => {
-          const [c1, c2] = child.map(String).sort();
-          const m = mother.map(String);
-          const f = father.map(String);
-          const fAlleles = ALLELE_FREQUENCIES[locus];
-
-          let pAllele = null; // Alelo Paterno Obrigatório (APO)
-          let mAllele = null; // Alelo Materno Recebido
-
-          // 1. Determinação do Alelo Paterno Obrigatório (APO)
-          const isC1FromMother = m.includes(c1);
-          const isC2FromMother = m.includes(c2);
-
-          if (c1 === c2) { // Filho Homozigoto (ex: 10, 10)
-            if (m[0] === m[1] && m[0] === c1) { // Mãe Homozigota
-                pAllele = c1; mAllele = c1; // APO é o próprio alelo
-            } else if (m.includes(c1)) { // Mãe Heterozigota ou ambígua
-                pAllele = c1; mAllele = c1; // Simplificação: Pai deve ter o alelo
-            }
-          } else { // Filho Heterozigoto (ex: 10, 11)
-            if (!isC1FromMother && isC2FromMother) { // c1 é exclusivo do pai
-              pAllele = c1; mAllele = c2;
-            } else if (isC1FromMother && !isC2FromMother) { // c2 é exclusivo do pai
-              pAllele = c2; mAllele = c1;
-            } else if (isC1FromMother && isC2FromMother) { // Ambos alelos presentes na mãe
-                // Caso Ambíguo (Não informativo, mas Inclusão se SP tiver ambos)
-                pAllele = null; // Indica APO é C1 ou C2 (ou seja, SP deve ter um deles)
-                mAllele = `${c1} ou ${c2}`; 
-            }
-          }
-
-          // 2. Verificação de Inclusão/Exclusão
-          let isIncluded = false;
-          let exclusionReason = "";
-
-          if (pAllele) {
-            if (f.includes(pAllele)) {
-              isIncluded = true;
-            } else {
-              exclusionReason = `SP (${f.join(', ')}) não possui o APO (${pAllele}).`;
-            }
-          } else if (isC1FromMother && isC2FromMother) { 
-            // Caso Ambíguo: Filho (10,11), Mãe (10,11). SP deve ter 10 ou 11.
-            if (f.includes(c1) || f.includes(c2)) {
-              isIncluded = true;
-              pAllele = c1; // Usa c1 para cálculo do IP
-            } else {
-              exclusionReason = `SP (${f.join(', ')}) não possui o alelo ${c1} nem ${c2}.`;
-            }
-          } else {
-            // Erro/Mutação materna ou dados incompletos
-            exclusionReason = "Dados inconsistentes (possível mutação materna).";
-          }
-
-          // 3. Cálculo do IP (se Inclusão)
-          let IP = 0;
-          let IPFormula = "";
-          let X = 0; // Probabilidade de transmissão do APO pelo SP
-          let Y = 0;
-          let freqAllele = 0;
-          
-          if (isIncluded) {
-            freqAllele = fAlleles[pAllele] || 0.01; // Frequência do APO na população (Y)
-            Y = freqAllele;
-
-            const spHomozygous = f[0] === f[1] && f[0] === pAllele;
-            const spHeterozygous = (f[0] !== f[1]) && (f.includes(pAllele));
-
-            if (spHomozygous) {
-              X = 1.0; // 100% de chance de transmitir o APO
-              IPFormula = `X/Y = 1.0 / ${Y.toFixed(4)}`;
-            } else if (spHeterozygous) {
-              X = 0.5; // 50% de chance de transmitir o APO
-              IPFormula = `X/Y = 0.5 / ${Y.toFixed(4)}`;
-            } else {
-                // SP é heterozigoto, mas o APO é o outro alelo (Cenário que já deveria ser coberto, mas fallback)
-                X = 0.5;
-                IPFormula = `X/Y = 0.5 / ${Y.toFixed(4)}`;
-            }
-            
-            IP = X / Y;
-          }
-
-          return {
-            locus,
-            pAllele,
-            mAllele,
-            isIncluded,
-            exclusionReason,
-            IP,
-            IPFormula,
-            freqAllele,
-            X // Incluímos X no objeto de retorno
-          };
-        };
-
-
-        // --- TELAS DO APLICATIVO ---
-
-        // 1. Tela de Teoria e Fluxo (Módulo 2)
+        // --- MÓDULO 2: FLUXO DE TRABALHO ---
         const WorkflowView = () => {
-          // ... (conteúdo do WorkflowView permanece o mesmo)
-          const steps = [
-            {
-              title: "1. Coleta e Preservação",
-              icon: <Activity size={24} />,
-              desc: "Cadeia de custódia rigorosa. Amostras: Sangue, Saliva (swab), Sêmen, Cabelo. Preservação em papel e refrigeração.",
-              details: "Base: Documentação fotográfica e coleta com 'duplo swab' para maximizar recuperação."
-            },
-            {
-              title: "2. Extração de DNA",
-              icon: <Dna size={24} />,
-              desc: "Isolamento do DNA da matriz biológica (remoção de proteínas e lipídios).",
-              details: "Métodos: Orgânica (Fenol-Clorofórmio), Chelex-100, Sílica ou Extração Diferencial (separar sêmen de células epiteliais)."
-            },
-            {
-              title: "3. Quantificação (qPCR)",
-              icon: <Calculator size={24} />,
-              desc: "Determinar concentração e qualidade (degradação/inibidores).",
-              details: "Ideal: 0.5-2.0 ng. Usa sondas TaqMan®. Razão de fragmentos grandes/pequenos indica integridade."
-            },
-            {
-              title: "4. Amplificação (PCR)",
-              icon: <Microscope size={24} />,
-              desc: "Amplificação exponencial de regiões STR específicas (Multiplex)." + 
-                    " 
+            const steps = [
+                { title: "1. Coleta e Preservação", icon: <Icons.FileCheck />, text: "Uso de EPIs, cadeia de custódia e coleta com duplo swab. Preservação em papel para evitar degradação por umidade." },
+                { title: "2. Extração de DNA", icon: <Icons.Dna />, text: "Rompimento das membranas celulares (Lise) e purificação do DNA (remoção de proteínas/inibidores). Métodos: Orgânico, Chelex ou Sílica." },
+                { title: "3. Quantificação (qPCR)", icon: <Icons.Calc />, text: "Verificação da quantidade e qualidade do DNA humano e masculino. Essencial para normalizar a reação de PCR." },
+                { title: "4. Amplificação (PCR)", icon: <Icons.Microscope />, text: "Amplificação multiplex dos marcadores STR. Ciclos de Desnaturação, Anelamento e Extensão criam milhões de cópias." },
+                { title: "5. Eletroforese Capilar", icon: <Icons.Dna />, text: "Separação dos fragmentos por tamanho com precisão de 1 par de bases. Detecção por fluorescência (Laser)." }
+            ];
 
-[Image of PCR Thermocycler Diagram showing denaturation, annealing, and extension phases]
- ",
-              details: "Kits modernos amplificam 15-25 locos simultaneamente + Amelogenina (sexo)."
-            },
-            {
-              title: "5. Eletroforese Capilar",
-              icon: <Activity size={24} />,
-              desc: "Separação dos fragmentos por tamanho com precisão de 1pb." +
-                    "  ",
-              details: "Detecta fluorescência e gera o Eletroferograma. Comparação com 'Allelic Ladder'."
-            }
-          ];
-
-          return (
-            <div className="space-y-6 animate-fadeIn">
-              <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
-                <h2 className="text-lg font-bold text-blue-800 mb-2">Módulo 2: O Fluxo de Trabalho</h2>
-                <p className="text-blue-700">Conforme descrito no material, o rigor técnico nestas etapas garante a admissibilidade da prova.</p>
-              </div>
-              
-              <div className="grid gap-4 md:grid-cols-1">
-                {steps.map((step, idx) => (
-                  <div key={idx} className="flex items-start bg-white p-4 rounded-xl shadow hover:shadow-md transition-shadow">
-                    <div className="bg-blue-100 p-3 rounded-full text-blue-600 mr-4 mt-1">
-                      {step.icon}
+            return (
+                <div className="space-y-4 animate-fade">
+                    <div className="bg-blue-50 p-4 rounded-lg border border-blue-200 text-blue-900">
+                        <h2 className="font-bold text-lg mb-1">O Laboratório Forense</h2>
+                        <p className="text-sm">Visualize as etapas críticas desde a cena do crime até o perfil genético.</p>
                     </div>
-                    <div>
-                      <h4 className="font-bold text-lg text-slate-800">{step.title}</h4>
-                      <p className="text-slate-600 mt-1">{step.desc}</p>
-                      <p className="text-xs text-slate-400 mt-2 uppercase tracking-wide font-semibold">Detalhes Técnicos: {step.details}</p>
+                    <div className="grid gap-4">
+                        {steps.map((s, i) => (
+                            <div key={i} className="bg-white p-4 rounded-lg shadow-sm flex items-start gap-4 border hover:border-blue-300 transition">
+                                <div className="p-3 bg-blue-100 text-blue-600 rounded-full">{s.icon}</div>
+                                <div>
+                                    <h4 className="font-bold text-slate-800">{s.title}</h4>
+                                    <p className="text-sm text-slate-600 mt-1">{s.text}</p>
+                                </div>
+                            </div>
+                        ))}
                     </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          );
+                </div>
+            );
         };
 
-
-        // 2. Simulador Criminal (CSI) com Formulário e Detalhamento de Cálculo
+        // --- MÓDULO 3: CRIMES (RMP) ---
         const CrimeSimulator = () => {
-          const initialState = LOCI.reduce((acc, locus) => ({ ...acc, [locus]: ['', ''] }), {});
-          const [evidence, setEvidence] = useState(initialState);
-          const [suspect, setSuspect] = useState(initialState);
-          const [analysisResult, setAnalysisResult] = useState(null);
+            const [data, setData] = useState(LOCI_NAMES.reduce((acc, l) => ({...acc, [l]: { ev: ['',''], susp: ['',''] }}), {}));
+            const [result, setResult] = useState(null);
 
-          const availableAlleles = useMemo(() => LOCI.reduce((acc, l) => ({ ...acc, [l]: Object.keys(ALLELE_FREQUENCIES[l]).sort((a, b) => parseFloat(a) - parseFloat(b)) }), {}), []);
-          const isFormComplete = LOCI.every(l => evidence[l][0] && evidence[l][1] && suspect[l][0] && suspect[l][1]);
+            const handleChange = (locus, type, idx, val) => {
+                const newData = { ...data };
+                newData[locus][type][idx] = val;
+                setData(newData);
+                setResult(null);
+            };
 
-          const handleChange = (locus, type, newAlleles) => {
-            const dataSetter = type === 'evidence' ? setEvidence : setSuspect;
-            dataSetter(prev => ({ ...prev, [locus]: newAlleles }));
-            setAnalysisResult(null); // Resetar resultado ao mudar input
-          };
+            const calculate = () => {
+                let totalFreq = 1;
+                let isMatch = true;
+                const details = [];
 
-          const analyze = (e) => {
-            e.preventDefault();
-            let matchCount = 0;
-            let rmpTotal = 1;
-            const details = [];
-            let isMatch = true;
+                LOCI_NAMES.forEach(locus => {
+                    const ev = data[locus].ev.sort();
+                    const susp = data[locus].susp.sort();
+                    
+                    // Verifica compatibilidade
+                    const match = JSON.stringify(ev) === JSON.stringify(susp);
+                    
+                    if (!match) {
+                        isMatch = false;
+                        details.push({ locus, match: false, text: "Exclusão" });
+                    } else {
+                        // Hardy-Weinberg
+                        const [a1, a2] = ev;
+                        const p = LOCI_DATA[locus][a1] || 0.01;
+                        const q = LOCI_DATA[locus][a2] || 0.01;
+                        let freq = 0;
+                        let formula = "";
 
-            LOCI.forEach(locus => {
-              const ev = evidence[locus].map(String).sort();
-              const susp = suspect[locus].map(String).sort();
-              const locusMatch = JSON.stringify(ev) === JSON.stringify(susp);
-              
-              if (locusMatch) {
-                matchCount++;
-                const { freqValue, freqFormula } = calculateRMP({ locus: ALLELE_FREQUENCIES[locus], alleles: ev });
-                rmpTotal *= freqValue;
-                details.push({ locus, match: true, genotype: ev, formula: freqFormula, freq: freqValue });
-              } else {
-                isMatch = false;
-                details.push({ locus, match: false, genotype: ev, formula: 'EXCLUSÃO', freq: 0 });
-              }
-            });
+                        if (a1 === a2) {
+                            freq = p * p;
+                            formula = `p² (${p}²) = ${freq.toFixed(4)}`;
+                        } else {
+                            freq = 2 * p * q;
+                            formula = `2pq (2 * ${p} * ${q}) = ${freq.toFixed(4)}`;
+                        }
+                        totalFreq *= freq;
+                        details.push({ locus, match: true, text: formula });
+                    }
+                });
 
-            setAnalysisResult({
-              isMatch,
-              rmp: rmpTotal,
-              details,
-              finalRMP: 1 / rmpTotal
-            });
-          };
+                setResult({ isMatch, totalFreq, details });
+            };
 
-          const calculateRMP = ({ locus: locusFreqs, alleles }) => {
-            const [a1, a2] = alleles;
-            const p = locusFreqs[a1] || 0;
-            const q = locusFreqs[a2] || 0;
-            
-            let freqValue;
-            let freqFormula;
-          
-            if (a1 === a2) { // Homozigoto A1A1: p²
-              freqValue = p * p;
-              freqFormula = `p² = ${p.toFixed(4)}²`;
-            } else { // Heterozigoto A1A2: 2pq
-              freqValue = 2 * p * q;
-              freqFormula = `2pq = 2 * ${p.toFixed(4)} * ${q.toFixed(4)}`;
-            }
-            return { freqValue, freqFormula };
-          };
+            const allFilled = LOCI_NAMES.every(l => data[l].ev[0] && data[l].ev[1] && data[l].susp[0] && data[l].susp[1]);
 
-          return (
-            <div className="space-y-6 animate-fadeIn">
-              <Card title={<><FileText /> Simulador Criminal (Hardy-Weinberg)</>}>
-                <p className="text-slate-600 mb-4">
-                  Insira os perfis de STR do Vestígio e do Suspeito. O sistema calculará o RMP (Random Match Probability) em caso de Inclusão, demonstrando o poder de exclusão de cada locus.
-                </p>
-                <form onSubmit={analyze}>
-                  <div className="grid md:grid-cols-2 gap-6 mb-6">
-                    <div className="bg-slate-100 p-4 rounded-xl border border-slate-300">
-                      <h4 className="font-bold text-slate-700 mb-2 border-b pb-2">Vestígio (Cena)</h4>
-                      {LOCI.map(locus => (
-                        <LocusInput
-                          key={locus}
-                          locus={locus}
-                          value={evidence[locus]}
-                          onChange={(l, v) => handleChange(l, 'evidence', v)}
-                          label="Genótipo"
-                          availableAlleles={availableAlleles[locus]}
-                        />
-                      ))}
-                    </div>
-                    <div className="bg-slate-100 p-4 rounded-xl border border-slate-300">
-                      <h4 className="font-bold text-slate-700 mb-2 border-b pb-2">Suspeito (Referência)</h4>
-                      {LOCI.map(locus => (
-                        <LocusInput
-                          key={locus}
-                          locus={locus}
-                          value={suspect[locus]}
-                          onChange={(l, v) => handleChange(l, 'suspect', v)}
-                          label="Genótipo"
-                          availableAlleles={availableAlleles[locus]}
-                        />
-                      ))}
-                    </div>
-                  </div>
-                  <div className="flex justify-center">
-                    <Button type="submit" disabled={!isFormComplete} variant="primary">
-                      <Calculator size={18} /> Calcular RMP
-                    </Button>
-                  </div>
-                </form>
-              </Card>
-
-              {analysisResult && (
-                <Card title="Resultado e Detalhamento do Cálculo (Módulo 3)" className={analysisResult.isMatch ? "border-emerald-500" : "border-rose-500"}>
-                  
-                  <div className="text-center mb-4">
-                    {analysisResult.isMatch ? (
-                        <div className="text-emerald-600 text-2xl font-bold flex items-center justify-center gap-2">
-                            <CheckCircle2 /> INCLUSÃO (MATCH)
+            return (
+                <div className="animate-fade">
+                    <Card title="Simulador Criminal (RMP)">
+                        <p className="mb-4 text-sm text-slate-600">Compare o Vestígio (Cena) com o Suspeito. Se houver Match, calculamos a frequência estatística.</p>
+                        <div className="grid md:grid-cols-2 gap-6 mb-6">
+                            <div className="bg-slate-50 p-4 rounded border">
+                                <h4 className="font-bold text-center mb-2">Vestígio (Cena)</h4>
+                                {LOCI_NAMES.map(l => (
+                                    <div key={l} className="flex gap-2 mb-2 items-center">
+                                        <span className="w-16 font-mono text-sm font-bold">{l}</span>
+                                        <SelectAllele value={data[l].ev[0]} onChange={v => handleChange(l, 'ev', 0, v)} options={Object.keys(LOCI_DATA[l])} />
+                                        <SelectAllele value={data[l].ev[1]} onChange={v => handleChange(l, 'ev', 1, v)} options={Object.keys(LOCI_DATA[l])} />
+                                    </div>
+                                ))}
+                            </div>
+                            <div className="bg-slate-50 p-4 rounded border">
+                                <h4 className="font-bold text-center mb-2">Suspeito</h4>
+                                {LOCI_NAMES.map(l => (
+                                    <div key={l} className="flex gap-2 mb-2 items-center">
+                                        <span className="w-16 font-mono text-sm font-bold">{l}</span>
+                                        <SelectAllele value={data[l].susp[0]} onChange={v => handleChange(l, 'susp', 0, v)} options={Object.keys(LOCI_DATA[l])} />
+                                        <SelectAllele value={data[l].susp[1]} onChange={v => handleChange(l, 'susp', 1, v)} options={Object.keys(LOCI_DATA[l])} />
+                                    </div>
+                                ))}
+                            </div>
                         </div>
-                      ) : (
-                        <div className="text-rose-600 text-2xl font-bold flex items-center justify-center gap-2">
-                            <XCircle /> EXCLUSÃO
+                        <div className="flex justify-center">
+                            <Button onClick={calculate} disabled={!allFilled}>Calcular Compatibilidade</Button>
                         </div>
-                      )}
-                    <p className="mt-2 text-slate-700 font-semibold">
-                      {analysisResult.isMatch ? 'O suspeito não é excluído. Força da evidência calculada abaixo.' : 'O suspeito está definitivamente EXCLUÍDO como fonte do DNA.'}
-                    </p>
-                  </div>
+                    </Card>
 
-                  <h4 className="font-bold text-lg text-slate-700 mt-4 mb-2 border-b pb-1">Cálculo Locus a Locus (Hardy-Weinberg)</h4>
-                  <div className="space-y-4">
-                    {analysisResult.details.map(d => (
-                      <div key={d.locus} className={`p-3 rounded-lg ${d.match ? 'bg-emerald-50 border border-emerald-200' : 'bg-rose-50 border border-rose-200'}`}>
-                        <div className="flex justify-between items-center text-sm font-semibold mb-1">
-                            <span>Locus: {d.locus} | Genótipo: {d.genotype.join(', ')}</span>
-                            <span className={d.match ? 'text-emerald-600' : 'text-rose-600'}>{d.match ? 'COMPATÍVEL' : 'INCOMPATÍVEL'}</span>
-                        </div>
-                        {d.match && (
-                          <p className="text-xs text-slate-600">
-                            <strong>Fórmula (Módulo 3):</strong> {d.formula} 
-                            <span className="ml-4 font-mono"> = {d.freq.toPrecision(4)}</span>
-                          </p>
-                        )}
-                        {!d.match && (
-                          <p className="text-xs text-rose-600">
-                            Motivo: O genótipo do Suspeito ({suspect[d.locus].join(', ')}) é diferente do Vestígio. Frequência = 0.
-                          </p>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-
-                  {analysisResult.isMatch && (
-                    <div className="mt-6 pt-4 border-t-2 border-slate-300">
-                      <h4 className="font-bold text-lg text-slate-700 mb-2 flex items-center gap-2"><Zap size={20} /> Resultado Final (Regra do Produto)</h4>
-                      <div className="bg-slate-800 text-white p-4 rounded-xl text-center">
-                        <p className="text-sm text-slate-300">RMP Total (Produto de todas as frequências):</p>
-                        <p className="text-4xl font-mono font-bold text-yellow-400">1 em {formatRMP(analysisResult.rmp)}</p>
-                        <p className="text-xs mt-2 text-slate-400">
-                          A probabilidade de encontrar este perfil em um indivíduo aleatório não relacionado na população é de 1 em {formatRMP(analysisResult.rmp)}.
-                        </p>
-                      </div>
-                    </div>
-                  )}
-                </Card>
-              )}
-            </div>
-          );
+                    {result && (
+                        <Card title="Resultado da Análise" accentColor={result.isMatch ? "green" : "red"}>
+                            <div className="text-center mb-6">
+                                <h2 className={`text-2xl font-bold ${result.isMatch ? 'text-emerald-600' : 'text-rose-600'}`}>
+                                    {result.isMatch ? "INCLUSÃO (MATCH)" : "EXCLUSÃO"}
+                                </h2>
+                                {result.isMatch && (
+                                    <div className="mt-4 bg-slate-800 text-white p-4 rounded-lg inline-block">
+                                        <p className="text-sm text-slate-400">RMP (Probabilidade de Match Aleatório):</p>
+                                        <p className="text-3xl font-mono text-yellow-400">1 em {(1/result.totalFreq).toExponential(2)}</p>
+                                    </div>
+                                )}
+                            </div>
+                            <div className="space-y-2 text-sm">
+                                {result.details.map((d, i) => (
+                                    <div key={i} className={`flex justify-between p-2 rounded ${d.match ? 'bg-emerald-50' : 'bg-rose-50'}`}>
+                                        <span className="font-bold">{d.locus}</span>
+                                        <span className="font-mono">{d.text}</span>
+                                    </div>
+                                ))}
+                            </div>
+                        </Card>
+                    )}
+                </div>
+            );
         };
 
-
-        // 3. Simulador de Paternidade com Formulário e Detalhamento de Cálculo
+        // --- MÓDULO 4/5: PATERNIDADE ---
         const PaternitySimulator = () => {
-          const initialState = LOCI.reduce((acc, locus) => ({ ...acc, [locus]: ['', ''] }), {});
-          const [mother, setMother] = useState(initialState);
-          const [child, setChild] = useState(initialState);
-          const [father, setFather] = useState(initialState);
-          const [analysisResult, setAnalysisResult] = useState(null);
+            const [data, setData] = useState(LOCI_NAMES.reduce((acc, l) => ({...acc, [l]: { m: ['',''], f: ['',''], sp: ['',''] }}), {}));
+            const [result, setResult] = useState(null);
 
-          const availableAlleles = useMemo(() => LOCI.reduce((acc, l) => ({ ...acc, [l]: Object.keys(ALLELE_FREQUENCIES[l]).sort((a, b) => parseFloat(a) - parseFloat(b)) }), {}), []);
-          const isFormComplete = LOCI.every(l => mother[l][0] && mother[l][1] && child[l][0] && child[l][1] && father[l][0] && father[l][1]);
+            const handleChange = (locus, type, idx, val) => {
+                const newData = { ...data };
+                newData[locus][type][idx] = val;
+                setData(newData);
+                setResult(null);
+            };
 
-          const handleChange = (locus, type, newAlleles) => {
-            const dataSetter = { 'mother': setMother, 'child': setChild, 'father': setFather }[type];
-            dataSetter(prev => ({ ...prev, [locus]: newAlleles }));
-            setAnalysisResult(null); 
-          };
+            const calculate = () => {
+                let cpi = 1;
+                let exclusionCount = 0;
+                const details = [];
 
-          const runTest = (e) => {
-            e.preventDefault();
-            let cpi = 1;
-            let exclusionCount = 0;
-            const details = [];
+                LOCI_NAMES.forEach(locus => {
+                    const m = data[locus].m;
+                    const f = data[locus].f.sort(); // Filho
+                    const sp = data[locus].sp;
 
-            LOCI.forEach(locus => {
-              const result = analyzePaternityLocus(locus, mother[locus], child[locus], father[locus]);
-              details.push(result);
-              
-              if (!result.isIncluded) {
-                exclusionCount++;
-                cpi = 0; // Se houver exclusão, o CPI é zero
-              } else if (cpi !== 0) {
-                cpi *= result.IP;
-              }
-            });
+                    // Lógica Mendeliana Simples
+                    let patOblig = null;
+                    
+                    // Se filho é homozigoto (A, A)
+                    if (f[0] === f[1]) {
+                        // Mãe tem A? Sim -> Pai tem que ter A.
+                        patOblig = f[0]; 
+                    } else {
+                        // Filho Heterozigoto (A, B)
+                        const aFromMother = m.includes(f[0]);
+                        const bFromMother = m.includes(f[1]);
 
-            const W = (cpi === 0 || cpi === Infinity) ? 0 : cpi / (cpi + 1);
+                        if (aFromMother && !bFromMother) patOblig = f[1]; // Mãe deu A, Pai deu B
+                        else if (!aFromMother && bFromMother) patOblig = f[0]; // Mãe deu B, Pai deu A
+                        else if (aFromMother && bFromMother) patOblig = "Ambíguo"; // Mãe tem ambos, não sabemos qual veio dela
+                        else patOblig = "Erro"; // Mãe não tem nenhum (Mutação materna rara)
+                    }
 
-            setAnalysisResult({
-              cpi,
-              W,
-              exclusionCount,
-              details
-            });
-          };
+                    let isInc = false;
+                    // Checar SP
+                    if (patOblig === "Ambíguo") {
+                        isInc = sp.includes(f[0]) || sp.includes(f[1]);
+                    } else if (patOblig && patOblig !== "Erro") {
+                        isInc = sp.includes(patOblig);
+                    }
 
-          return (
-            <div className="space-y-6 animate-fadeIn">
-              <Card title={<><Dna /> Simulador de Paternidade (Cálculo de IP)</>}>
-                <p className="text-slate-600 mb-4">
-                  Insira os perfis de STR do Trio (Mãe, Filho e Suposto Pai - SP). O sistema determinará o Alelo Paterno Obrigatório (APO) e calculará o Índice de Paternidade (IP) locus a locus (Módulos 4 e 5).
-                </p>
-                <form onSubmit={runTest}>
-                  <div className="grid md:grid-cols-3 gap-4 mb-6">
-                    <div className="bg-pink-50 p-4 rounded-xl border border-pink-200">
-                      <h4 className="font-bold text-pink-700 mb-2 border-b pb-2 text-center">Mãe</h4>
-                      {LOCI.map(locus => (
-                        <LocusInput
-                          key={locus}
-                          locus={locus}
-                          value={mother[locus]}
-                          onChange={(l, v) => handleChange(l, 'mother', v)}
-                          label="Genótipo"
-                          availableAlleles={availableAlleles[locus]}
-                        />
-                      ))}
-                    </div>
-                    <div className="bg-purple-50 p-4 rounded-xl border border-purple-200">
-                      <h4 className="font-bold text-purple-700 mb-2 border-b pb-2 text-center">Filho(a)</h4>
-                      {LOCI.map(locus => (
-                        <LocusInput
-                          key={locus}
-                          locus={locus}
-                          value={child[locus]}
-                          onChange={(l, v) => handleChange(l, 'child', v)}
-                          label="Genótipo"
-                          availableAlleles={availableAlleles[locus]}
-                        />
-                      ))}
-                    </div>
-                    <div className="bg-blue-50 p-4 rounded-xl border border-blue-200">
-                      <h4 className="font-bold text-blue-700 mb-2 border-b pb-2 text-center">Suposto Pai (SP)</h4>
-                      {LOCI.map(locus => (
-                        <LocusInput
-                          key={locus}
-                          locus={locus}
-                          value={father[locus]}
-                          onChange={(l, v) => handleChange(l, 'father', v)}
-                          label="Genótipo"
-                          availableAlleles={availableAlleles[locus]}
-                        />
-                      ))}
-                    </div>
-                  </div>
-                  <div className="flex justify-center">
-                    <Button type="submit" disabled={!isFormComplete} variant="primary">
-                      <Calculator size={18} /> Calcular Vínculo Genético
-                    </Button>
-                  </div>
-                </form>
-              </Card>
-
-              {analysisResult && (
-                <Card title="Laudo Pericial Detalhado (Módulos 4 e 5)" className={analysisResult.exclusionCount >= 2 ? "border-rose-500" : analysisResult.W > 0.999 ? "border-emerald-500" : "border-yellow-500"}>
-                  
-                  <h4 className="font-bold text-lg text-slate-700 mt-2 mb-2 border-b pb-1">Análise Locus a Locus e IP</h4>
-                  <div className="space-y-4">
-                    {analysisResult.details.map(d => (
-                      <div key={d.locus} className={`p-3 rounded-xl ${d.isIncluded ? 'bg-emerald-50 border border-emerald-200' : 'bg-rose-50 border border-rose-200'}`}>
-                        <div className="flex justify-between items-center text-sm font-semibold mb-1">
-                            <span>Locus: {d.locus}</span>
-                            <span className={d.isIncluded ? 'text-emerald-600' : 'text-rose-600'}>{d.isIncluded ? 'INCLUSÃO' : 'EXCLUSÃO'}</span>
-                        </div>
+                    let ip = 0;
+                    if (isInc) {
+                        // Cálculo IP = X / Y
+                        // Y = Frequência do Alelo Paterno na população
+                        const alleleToCheck = (patOblig === "Ambíguo") ? f[0] : patOblig; // Simplificação
+                        const y = LOCI_DATA[locus][alleleToCheck] || 0.01;
                         
-                        <p className="text-xs text-slate-600">
-                            Alelo Materno Recebido: <strong className="text-pink-700">{d.mAllele}</strong> | Alelo Paterno Obrigatório (APO): <strong className="text-blue-700">{d.pAllele}</strong>
-                        </p>
+                        // X = Chance de transmissão (1 se homozigoto, 0.5 se hetero)
+                        const spHomo = sp[0] === sp[1];
+                        const x = spHomo ? 1.0 : 0.5;
+                        
+                        ip = x / y;
+                        cpi *= ip;
+                    } else {
+                        exclusionCount++;
+                        cpi = 0;
+                    }
 
-                        {d.isIncluded ? (
-                          <p className="text-xs text-slate-600 mt-1">
-                            <strong>Cálculo IP (Mód. 5):</strong> IP = X/Y. X (Prob. SP transmitir) = {d.X.toFixed(1)}. Y (Freq. APO) = {d.freqAllele.toFixed(4)}. 
-                            <span className="ml-4 font-mono font-bold text-lg">IP = {d.IP.toFixed(3)}</span>
-                          </p>
-                        ) : (
-                          <p className="text-xs text-rose-600 mt-1">
-                            Motivo da Exclusão: {d.exclusionReason}
-                          </p>
-                        )}
-                      </div>
-                    ))}
-                  </div>
+                    details.push({ locus, patOblig, isInc, ip: ip.toFixed(2) });
+                });
 
-                  <div className="mt-6 pt-4 border-t-2 border-slate-300">
-                    <h4 className="font-bold text-lg text-slate-700 mb-2 flex items-center gap-2"><Zap size={20} /> Conclusão Estatística (Módulo 5)</h4>
-                    <div className="bg-slate-800 text-white p-4 rounded-xl flex flex-col md:flex-row justify-between items-center">
-                      <div>
-                        <p className="text-sm text-slate-300">Índice de Paternidade Combinado (IPC):</p>
-                        <p className="text-2xl font-mono font-bold text-yellow-400">{analysisResult.cpi.toExponential(2)}</p>
-                      </div>
-                      <div className="text-right mt-4 md:mt-0">
-                        <p className="text-sm text-slate-300">Probabilidade de Paternidade (W = IPC / (IPC + 1)):</p>
-                        <p className={`text-3xl font-bold ${analysisResult.W > 0.999 ? 'text-emerald-400' : 'text-rose-400'}`}>
-                          {analysisResult.W === 0 ? '0.000000%' : formatPercent(analysisResult.W)}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="mt-4 p-3 rounded-xl border border-slate-200 italic font-medium text-slate-700">
-                    <strong>Interpretação:</strong> {analysisResult.exclusionCount >= 2 
-                      ? `Paternidade EXCLUÍDA. Duas ou mais incompatibilidades encontradas (${analysisResult.exclusionCount} locos). Probabilidade: 0%.`
-                      : analysisResult.W > 0.999 
-                        ? "Paternidade PRATICAMENTE PROVADA. O resultado W > 99.9% é o padrão de aceitação pericial."
-                        : `Resultado INCONCLUSIVO. O valor W (${formatPercent(analysisResult.W)}) é inferior ao limite de 99.9% exigido. Análise de locos adicionais seria recomendada.`}
-                  </div>
-                </Card>
-              )}
-            </div>
-          );
+                const w = cpi / (cpi + 1);
+                setResult({ cpi, w, exclusionCount, details });
+            };
+
+            const allFilled = LOCI_NAMES.every(l => 
+                data[l].m[0] && data[l].m[1] && 
+                data[l].f[0] && data[l].f[1] && 
+                data[l].sp[0] && data[l].sp[1]
+            );
+
+            return (
+                <div className="animate-fade">
+                    <Card title="Simulador de Paternidade (Trio)">
+                        <p className="mb-4 text-sm text-slate-600">Insira os alelos. O sistema determina o Alelo Paterno Obrigatório e calcula o Índice de Paternidade (IP).</p>
+                        <div className="grid md:grid-cols-3 gap-4 mb-6">
+                            {['m', 'f', 'sp'].map(type => (
+                                <div key={type} className={`p-3 rounded border ${type === 'm' ? 'bg-pink-50 border-pink-200' : type === 'f' ? 'bg-purple-50 border-purple-200' : 'bg-blue-50 border-blue-200'}`}>
+                                    <h4 className="font-bold text-center mb-2 uppercase text-xs">
+                                        {type === 'm' ? 'Mãe' : type === 'f' ? 'Filho(a)' : 'Suposto Pai'}
+                                    </h4>
+                                    {LOCI_NAMES.map(l => (
+                                        <div key={l} className="flex gap-1 mb-2 items-center justify-center">
+                                            <span className="w-8 font-mono text-xs font-bold">{l}</span>
+                                            <SelectAllele value={data[l][type][0]} onChange={v => handleChange(l, type, 0, v)} options={Object.keys(LOCI_DATA[l])} />
+                                            <SelectAllele value={data[l][type][1]} onChange={v => handleChange(l, type, 1, v)} options={Object.keys(LOCI_DATA[l])} />
+                                        </div>
+                                    ))}
+                                </div>
+                            ))}
+                        </div>
+                        <div className="flex justify-center">
+                            <Button onClick={calculate} disabled={!allFilled}>Calcular Vínculo</Button>
+                        </div>
+                    </Card>
+
+                    {result && (
+                        <Card title="Laudo Pericial" accentColor={result.exclusionCount >= 2 ? "red" : "green"}>
+                            <div className="flex flex-col md:flex-row justify-between items-center bg-slate-800 text-white p-4 rounded mb-4">
+                                <div>
+                                    <p className="text-xs text-slate-400">Índice Combinado (IPC)</p>
+                                    <p className="text-2xl font-mono text-yellow-400">{result.cpi.toFixed(2)}</p>
+                                </div>
+                                <div className="text-right mt-2 md:mt-0">
+                                    <p className="text-xs text-slate-400">Probabilidade (W)</p>
+                                    <p className="text-2xl font-bold">{(result.w * 100).toFixed(6)}%</p>
+                                </div>
+                            </div>
+                            
+                            <div className="overflow-x-auto">
+                                <table className="w-full text-sm text-left">
+                                    <thead className="text-xs uppercase bg-slate-100 text-slate-600">
+                                        <tr>
+                                            <th className="p-2">Locus</th>
+                                            <th className="p-2">Alelo Obrigatório</th>
+                                            <th className="p-2">Status</th>
+                                            <th className="p-2 text-right">IP</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {result.details.map((d, i) => (
+                                            <tr key={i} className="border-b hover:bg-slate-50">
+                                                <td className="p-2 font-bold">{d.locus}</td>
+                                                <td className="p-2 text-blue-600">{d.patOblig}</td>
+                                                <td className={`p-2 font-bold ${d.isInc ? 'text-emerald-600' : 'text-rose-600'}`}>
+                                                    {d.isInc ? 'Inclusão' : 'Exclusão'}
+                                                </td>
+                                                <td className="p-2 text-right font-mono">{d.ip}</td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </Card>
+                    )}
+                </div>
+            );
         };
 
-        // ... (restante do InfoModal e App.jsx)
-
+        // --- MODAL DE AJUDA (Texto Puro, sem LaTeX) ---
         const InfoModal = ({ onClose }) => (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 animate-fadeIn">
-            <div className="bg-white rounded-lg max-w-lg w-full p-6 max-h-[80vh] overflow-y-auto">
-              <h3 className="text-xl font-bold mb-4 flex items-center gap-2"><BookOpen /> Fórmulas e Conceitos (Módulos 3 e 5)</h3>
-              
-              <div className="space-y-4 text-sm text-slate-700">
-                <div>
-                  <h4 className="font-bold text-blue-600">Hardy-Weinberg (CSI - Frequência de Genótipo)</h4>
-                  <p>Calcula a frequência (RMP) de um genótipo em equilíbrio populacional (p = freq. Alelo 1, q = freq. Alelo 2).</p>
-                  <ul className="list-disc ml-5 mt-1">
-                    <li><strong>Homozigoto (A₁, A₁):</strong> p²</li>
-                    <li><strong>Heterozigoto (A₁, A₂):</strong> 2pq</li>
-                  </ul>
+            <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50 animate-fade">
+                <div className="bg-white rounded-lg max-w-md w-full p-6 shadow-2xl">
+                    <h3 className="text-xl font-bold mb-4 flex items-center gap-2"><Icons.Info /> Referência Teórica</h3>
+                    <div className="space-y-4 text-sm text-slate-700">
+                        <div className="p-3 bg-slate-100 rounded">
+                            <h4 className="font-bold text-blue-700">Crimes (Hardy-Weinberg)</h4>
+                            <p>Probabilidade de um perfil na população:</p>
+                            <ul className="list-disc ml-5 mt-1 text-xs">
+                                <li>Homozigoto (A, A) = p * p</li>
+                                <li>Heterozigoto (A, B) = 2 * p * q</li>
+                            </ul>
+                        </div>
+                        <div className="p-3 bg-slate-100 rounded">
+                            <h4 className="font-bold text-blue-700">Paternidade (Índice IP)</h4>
+                            <p>IP = X / Y</p>
+                            <ul className="list-disc ml-5 mt-1 text-xs">
+                                <li>X = Chance do SP transmitir o alelo (1 ou 0.5)</li>
+                                <li>Y = Frequência do alelo na população</li>
+                                <li>W = IPC / (IPC + 1)</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div className="mt-6 text-right">
+                        <button onClick={onClose} className="bg-slate-800 text-white px-4 py-2 rounded hover:bg-slate-700">Fechar</button>
+                    </div>
                 </div>
-
-                <div>
-                  <h4 className="font-bold text-blue-600">Índice de Paternidade (IP - Locus a Locus)</h4>
-                  <p>Compara a chance de transmissão do alelo pelo SP (X) versus por um homem aleatório (Y, a frequência populacional).</p>
-                  <p className="font-mono bg-slate-100 p-2 rounded mt-1">IP = X / Y</p>
-                  <ul className="list-disc ml-5 mt-1">
-                    <li><strong>X:</strong> 1.0 (SP é Homozigoto para o APO) ou 0.5 (SP é Heterozigoto).</li>
-                    <li><strong>Y:</strong> Frequência populacional do Alelo Paterno Obrigatório (APO).</li>
-                    <li><strong>IPC:</strong> Produto de todos os IPs (IP1 x IP2 x ...).</li>
-                  </ul>
-                </div>
-
-                <div>
-                  <h4 className="font-bold text-blue-600">Probabilidade de Paternidade (W)</h4>
-                  <p>Conversão do IPC em probabilidade percentual (Teorema de Bayes, assumindo $P_{priori}=0.5$).</p>
-                  <p className="font-mono bg-slate-100 p-2 rounded mt-1">W = IPC / (IPC + 1)</p>
-                </div>
-              </div>
-              
-              <div className="mt-6 text-right">
-                <Button onClick={onClose}>Fechar</Button>
-              </div>
             </div>
-          </div>
         );
 
-        function BioForensicApp() {
-          const [currentTab, setCurrentTab] = useState('paternity'); // Inicia na aba de Paternidade para maior foco
-          const [showInfo, setShowInfo] = useState(false);
+        // --- APP PRINCIPAL ---
+        const App = () => {
+            const [tab, setTab] = useState('paternity');
+            const [showModal, setShowModal] = useState(false);
 
-          return (
-            <div className="min-h-screen bg-slate-50 text-slate-800 font-sans">
-              {/* Header */}
-              <header className="bg-slate-900 text-white p-4 shadow-lg">
-                <div className="container mx-auto flex flex-col md:flex-row justify-between items-center">
-                  <div className="flex items-center gap-3 mb-4 md:mb-0">
-                    <div className="bg-blue-600 p-2 rounded-full">
-                      <Dna size={32} className="text-white" />
-                    </div>
-                    <div>
-                      <h1 className="text-2xl font-bold tracking-tight">BioForensic Lab (Calculadora Pericial)</h1>
-                      <p className="text-xs text-slate-400">Workshop de Genética Molecular Forense Interativo</p>
-                    </div>
-                  </div>
-                  <button 
-                    onClick={() => setShowInfo(true)}
-                    className="text-sm flex items-center gap-1 bg-slate-800 px-3 py-1 rounded-lg hover:bg-slate-700 transition"
-                  >
-                    <Info size={16} /> Referência Teórica
-                  </button>
+            return (
+                <div className="min-h-screen pb-12">
+                    <header className="bg-slate-900 text-white p-4 shadow-lg sticky top-0 z-10">
+                        <div className="container mx-auto flex justify-between items-center">
+                            <div className="flex items-center gap-3">
+                                <div className="bg-blue-600 p-2 rounded-full"><Icons.Dna /></div>
+                                <div>
+                                    <h1 className="text-xl font-bold leading-tight">BioForensic Lab</h1>
+                                    <p className="text-xs text-slate-400">Calculadora Pericial</p>
+                                </div>
+                            </div>
+                            <button onClick={() => setShowModal(true)} className="text-sm flex items-center gap-1 bg-slate-800 px-3 py-2 rounded hover:bg-slate-700 transition">
+                                <Icons.Info /> <span className="hidden md:inline">Teoria</span>
+                            </button>
+                        </div>
+                    </header>
+
+                    <nav className="bg-white border-b mb-8">
+                        <div className="container mx-auto flex overflow-x-auto">
+                            {[
+                                { id: 'paternity', label: 'Paternidade', icon: <Icons.Dna /> },
+                                { id: 'crime', label: 'Criminal (CSI)', icon: <Icons.FileCheck /> },
+                                { id: 'workflow', label: 'Fluxo Lab', icon: <Icons.Microscope /> }
+                            ].map(t => (
+                                <button 
+                                    key={t.id}
+                                    onClick={() => setTab(t.id)}
+                                    className={`flex items-center gap-2 px-6 py-4 border-b-2 font-medium transition-colors whitespace-nowrap ${tab === t.id ? 'border-blue-600 text-blue-600 bg-blue-50' : 'border-transparent text-slate-500 hover:text-slate-700'}`}
+                                >
+                                    {t.icon} {t.label}
+                                </button>
+                            ))}
+                        </div>
+                    </nav>
+
+                    <main className="container mx-auto px-4 max-w-4xl">
+                        {tab === 'paternity' && <PaternitySimulator />}
+                        {tab === 'crime' && <CrimeSimulator />}
+                        {tab === 'workflow' && <WorkflowView />}
+                    </main>
+
+                    {showModal && <InfoModal onClose={() => setShowModal(false)} />}
                 </div>
-              </header>
+            );
+        };
 
-              {/* Navegação */}
-              <nav className="bg-white border-b border-slate-200 sticky top-0 z-10">
-                <div className="container mx-auto flex overflow-x-auto">
-                  <button 
-                    onClick={() => setCurrentTab('paternity')}
-                    className={`px-6 py-4 font-medium border-b-2 transition-colors whitespace-nowrap flex items-center gap-2 ${currentTab === 'paternity' ? 'border-blue-600 text-blue-600 bg-blue-50' : 'border-transparent text-slate-500 hover:text-slate-700'}`}
-                  >
-                    <Activity size={18} />
-                    Mód 4/5: Paternidade (IP)
-                  </button>
-                  <button 
-                    onClick={() => setCurrentTab('crime')}
-                    className={`px-6 py-4 font-medium border-b-2 transition-colors whitespace-nowrap flex items-center gap-2 ${currentTab === 'crime' ? 'border-blue-600 text-blue-600 bg-blue-50' : 'border-transparent text-slate-500 hover:text-slate-700'}`}
-                  >
-                    <FileText size={18} />
-                    Mód 3: Crimes (RMP)
-                  </button>
-                  <button 
-                    onClick={() => setCurrentTab('workflow')}
-                    className={`px-6 py-4 font-medium border-b-2 transition-colors whitespace-nowrap flex items-center gap-2 ${currentTab === 'workflow' ? 'border-blue-600 text-blue-600 bg-blue-50' : 'border-transparent text-slate-500 hover:text-slate-700'}`}
-                  >
-                    <Microscope size={18} />
-                    Mód 2: Fluxo Lab.
-                  </button>
-                </div>
-              </nav>
-
-              {/* Conteúdo Principal */}
-              <main className="container mx-auto p-4 md:p-8 max-w-5xl">
-                {currentTab === 'paternity' && <PaternitySimulator />}
-                {currentTab === 'crime' && <CrimeSimulator />}
-                {currentTab === 'workflow' && <WorkflowView />}
-              </main>
-
-              {/* Footer */}
-              <footer className="bg-slate-900 text-slate-400 py-6 text-center text-sm mt-12">
-                <p>Desenvolvido para fins educacionais - Baseado na obra de Rodrigo Niskier Ferreira Barbosa (2025)</p>
-              </footer>
-
-              {/* Modais */}
-              {showInfo && <InfoModal onClose={() => setShowInfo(false)} />}
-            </div>
-          );
-        }
-
-        ReactDOM.render(<BioForensicApp />, document.getElementById('root'));
-    </script>
-    <script>
-        // Lucide icons setup (needed for the icons in JSX)
-        // This is a minimal setup for the necessary icons to run in the HTML script tag environment
-        // The script block above has the full definition using 'window[lucide-react]'
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
     </script>
 </body>
 </html>
