@@ -1,38 +1,40 @@
-# DNA Forense — O menino sem identidade
+# Curso de Exame de DNA — plataforma interativa
 
-Plataforma didática interativa, com slides curtos, atividades de fixação e resolução fundamentada de um caso fictício de investigação de paternidade. Desenvolvida para introdução à genética e biologia molecular, sem exigir cálculos dos participantes.
+Apresentação didática em tela cheia sobre fundamentos da herança genética, testes de paternidade por STR, procedimentos laboratoriais, interpretação da evidência e discussão de uma investigação de parentesco. A navegação é orientada por slides, sem rolagem vertical, com pausas para quizzes e revisão final dos dados.
 
-## Organização
+## Estrutura
 
-- `index.html`: nova experiência interativa de entrada, caso forense, três blocos didáticos, três quizzes e resolução.
-- `data.js`: textos e perguntas, genótipos didáticos e links das referências.
-- `app.js`: navegação, quizzes, persistência de respostas no navegador e análise dos loci.
-- `styles.css`: editoração visual responsiva, azul/branco/amarelo, ênfase em imagens.
-- `assets/`: imagens ilustrativas otimizadas e QR code estático do livro.
-- `portal-original.html`: cópia preservada da antiga página de entrada.
-- `casos.html`, `pcr.html`, `perito.html`: experiências pré-existentes preservadas.
+- `index.html` — documento HTML e metadados.
+- `app.js` — navegação, atividades, resolução do desafio, diálogo de referências e ajuste automático à altura/largura da tela.
+- `data.js` — 19 slides e conteúdo científico, nove questões e conjunto de dados do exercício.
+- `styles.css` — identidade visual UNIPÊ em azul, branco e amarelo e layout responsivo de apresentação.
+- `qr-local.js` — geração de QR code da apresentação no próprio navegador, incluindo o domínio real usado no acesso.
+- `assets/livro-qr.png`, `assets/apostila-qr.png` — QR codes do livro e da apostila.
+- `assets/` — imagens didáticas e cenas de apoio da apresentação.
+- `portal-original.html`, `casos.html`, `pcr.html`, `perito.html` — versões e simuladores anteriores mantidos.
 
-## Roteiro sugerido
+## Percurso
 
-1. Caso inicial: relato + perfis STR fictícios, **sem antecipação do diagnóstico**.
-2. Bloco 1: fundamentos da herança (20 min) + três questões (15 min).
-3. Bloco 2: fluxo laboratorial (20 min) + três questões (15 min).
-4. Bloco 3: interpretação (20 min) + três questões (15 min).
-5. Revisão do caso e esclarecimentos ao juízo (15 min).
+1. Apresentação do desafio e dados STR em duas telas separadas.
+2. Fundamentos genéticos e três perguntas de fixação.
+3. Etapas laboratoriais e três perguntas de fixação.
+4. Interpretação e três perguntas de fixação.
+5. Retorno aos genótipos, comparação dos loci e discussão pericial fundamentada.
+6. Tela final com três QR codes: **livro, apostila e apresentação**.
 
-A duração é uma referência para o facilitador; a navegação não força cronômetro. As respostas são salvas apenas no `localStorage` do navegador.
+O exame ilustrado contém uma discordância com André no STR-05 e três com Bruno nos STR-02, 07 e 09; não contém frequências alélicas ou parâmetros para um cálculo válido de probabilidades ou Índices de Paternidade. As explicações destacam essas limitações sem antecipar a solução no desafio inicial. O texto é apoiado por referências de NIST, ISFG e Butler et al., acessíveis no diálogo **Fontes**.
 
-## Revisão técnico-científica
+## QR codes
 
-Os genótipos dos 10 marcadores do caso são **inventados** para ensino. Não constituem perfil validado nem representam um laudo pericial. Pela herança autossômica usual, a comparação do alelo paterno obrigatório evidencia uma discordância aparente com André (STR-05) e três com Bruno (STR-02, STR-07, STR-09). A discrepância isolada pode ter explicações alternativas, inclusive mutação, mas não pode ser simplesmente descartada. A relação de fraternidade entre os candidatos afeta o modelo estatístico e a força da evidência. Portanto, a experiência **não inventa Índice de Paternidade, índice combinado ou probabilidade percentual**; recomenda validação, painel integral, frequências, hipótese alternativa adequada e apreciação de mutação e outras limitações antes de conclusão.
+- O QR do livro aponta ao ASIN `B0G2DZ2X3K`, já presente no portal anterior.
+- O QR da apostila aponta ao PDF disponível no Google Drive. Se o Drive exigir autenticação, o proprietário deve ajustar as permissões de compartilhamento conforme o público pretendido.
+- O QR da apresentação é renderizado localmente como SVG por `qr-local.js` e utiliza `window.location.origin + pathname`, sem endereço Vercel fixo nem dependência de API pública de QR code.
 
-Fontes acadêmicas e institucionais utilizadas: NIST; recomendações ISFG da Comissão de Testes de Paternidade (2002, 2007); Butler et al. (2008). Links de referência estão no modal "Fontes" do aplicativo.
-
-O link do livro foi recuperado da página original deste repositório (ASIN `B0G2DZ2X3K`); o QR code codifica esse mesmo endereço. A paginação anterior não foi excluída.
+O gerador de QR code incorpora o projeto [QRCode for JavaScript](https://github.com/kazuhikoarase/qrcode-generator), © Kazuhiko Arase, licenciado sob MIT, através de código distribuído no `qrcode-terminal` (também MIT). O aviso de licença está preservado em `qr-local.js`.
 
 ## Desenvolvimento e testes
 
-O projeto é composto de HTML/CSS/JS estáticos e pode ser servido por qualquer servidor web, incluindo Vercel. Sem compilação nem segredos.
+O aplicativo é inteiramente estático. Não necessita de compilação, banco de dados, chaves de API ou variáveis de ambiente. Compatível com a integração GitHub → Vercel.
 
 ```bash
 python -m http.server 8080
@@ -40,8 +42,4 @@ python tests/test_content.py
 python tests/test_browser.py
 ```
 
-Os testes de interface utilizam Playwright com Chromium instalado, incluindo validação das três pausas interativas, navegação desktop/mobile, tabela de genótipos e tela de resolução. O código de interface está escrito para funcionar sem biblioteca de frontend; as imagens são locais.
-
-## Responsabilidade
-
-Todos os personagens, imagens de cenas forenses, documentos e resultados genéticos do caso são ilustrações didáticas, não registros de pessoas ou procedimentos reais. A divulgação do caso não substitui aconselhamento, interpretação pericial ou orientação jurídica individualizada.
+Os testes de interface cobrem abertura e fechamento da janela de fontes, percurso completo dos slides, três quizzes, painel de genótipos, slides de resolução e QR codes, em tamanhos de tela entre **320×568** e **1920×1080**. O botão de tela cheia é opcional; a experiência não depende dele.

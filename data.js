@@ -1,7 +1,7 @@
 'use strict';
-/* Conteúdo de educação em genética forense; dados do caso são inteiramente fictícios. */
+/* Conteúdo didático de genética forense. */
 window.DNA_COURSE = Object.freeze({
-  title: 'O menino sem identidade',
+  title: 'Curso de Exame de DNA',
   book: {
     title: 'Introdução à Genética Molecular Forense',
     url: 'https://www.amazon.com.br/Introdu%C3%A7%C3%A3o-%C3%A0-Gen%C3%A9tica-Molecular-Forense-ebook/dp/B0G2DZ2X3K'
@@ -37,7 +37,7 @@ window.DNA_COURSE = Object.freeze({
         {kicker:'TRANSMISSÃO',title:'Uma contribuição de cada genitor.',lead:'Em um locus STR autossômico, o filho normalmente herda um alelo da mãe e um do pai biológico.',image:'diagram-alleles.webp',imageAlt:'Dois alelos por pessoa e transmissão materna e paterna de marcadores STR',chips:['Mãe → filho','Pai → filho','Locus autossômico']},
         {kicker:'MARCADOR GENÉTICO',title:'STR: pequenos trechos repetidos.',lead:'Pessoas podem apresentar números diferentes de repetições de uma sequência curta de DNA no mesmo locus.',image:'diagram-str.webp',imageAlt:'Duas moléculas de DNA demonstrando alelos STR com diferentes números de repetição',chips:['STR','Repetições','Alelos']},
         {kicker:'TRÊS CONCEITOS',title:'Locus. Alelo. Genótipo.',lead:'Locus é a posição analisada; alelo é sua variante; genótipo é o par de alelos registrado naquele locus.',type:'terms',terms:[['Locus','posição no DNA'],['Alelo','variante observada'],['Genótipo','par de alelos']],chips:['Exemplo: 12 / 14']},
-        {kicker:'REGRA ESSENCIAL',title:'Compatível não significa confirmado.',lead:'Compartilhar um alelo é comum. Precisamos observar vários marcadores e avaliar a força da evidência sob hipóteses bem definidas.',image:'diagram-trio.webp',imageAlt:'Quadro ilustrativo de genótipos de mãe, filho e suposto pai em três loci fictícios',chips:['Vários loci','Hipóteses','Evidência']}
+        {kicker:'REGRA ESSENCIAL',title:'Compatível não significa confirmado.',lead:'Compartilhar um alelo é comum. Precisamos observar vários marcadores e avaliar a força da evidência sob hipóteses bem definidas.',image:'diagram-trio.webp',imageAlt:'Quadro ilustrativo de genótipos de mãe, filho e suposto pai em três loci',chips:['Vários loci','Hipóteses','Evidência']}
       ],
       quiz:{title:'Pausa 1 · Herança genética',description:'Três perguntas para aplicar os conceitos antes do próximo bloco.',questions:[
         {q:'Num STR autossômico, uma criança normalmente apresenta:',answers:['Um alelo de cada genitor','Somente os alelos maternos','Um único alelo em todos os loci'],correct:0,explain:'Um alelo provém do gameta materno e o outro do paterno no modelo autossômico usual.'},
@@ -52,7 +52,7 @@ window.DNA_COURSE = Object.freeze({
         {kicker:'ETAPA 1',title:'Coletar é também identificar.',lead:'O swab bucal fornece células para o teste. Identificação, consentimento e rastreabilidade protegem a conclusão.',image:'scene-swab.webp',imageAlt:'Profissional usando swab bucal em uma pessoa adulta',chips:['Swab bucal','Identificação','Cadeia de custódia']},
         {kicker:'ETAPA 2',title:'Extrair DNA. Verificar qualidade.',lead:'O laboratório obtém DNA da amostra e avalia sua quantidade e integridade antes da amplificação.',image:'scene-extraction.webp',imageAlt:'Profissional de laboratório pipetando amostras na etapa de extração de DNA',chips:['Extração','Quantificação','Controle de qualidade']},
         {kicker:'ETAPA 3',title:'A PCR amplia regiões selecionadas.',lead:'A reação em cadeia da polimerase produz muitas cópias dos loci que serão comparados — não de todo o genoma.',image:'diagram-pcr.webp',imageAlt:'Esquema de amplificação por PCR e separação de fragmentos',chips:['Primers','Ciclos','STR multiplex']},
-        {kicker:'ETAPA 3 · NA BANCADA',title:'O técnico prepara a amplificação.',lead:'A mistura de reação, os controles e as amostras são organizados antes de o termociclador executar os ciclos da PCR.',image:'scene-pcr.webp',imageAlt:'Biomédica preparando a placa de PCR e colocando-a em termociclador',chips:['Reagentes','Controles','Termociclador']},
+        {kicker:'ETAPA 3 · NA BANCADA',title:'O profissional prepara a amplificação.',lead:'A mistura de reação, os controles e as amostras são organizados antes de o termociclador executar os ciclos da PCR.',image:'scene-pcr.webp',imageAlt:'Biomédica preparando a placa de PCR e colocando-a em termociclador',chips:['Reagentes','Controles','Termociclador']},
         {kicker:'ETAPA 4',title:'A eletroforese transforma DNA em sinais.',lead:'Fragmentos amplificados são separados e detectados. Os picos do eletroferograma ajudam a identificar os alelos.',image:'diagram-peak.webp',imageAlt:'Eletroferograma simplificado mostrando dois picos correspondentes a um heterozigoto',chips:['Eletroforese capilar','Eletroferograma','Genotipagem']},
         {kicker:'ETAPA 4 · NO LABORATÓRIO',title:'O analista verifica cada sinal.',lead:'O equipamento registra os fragmentos. A interpretação precisa examinar posição, intensidade, controles e possíveis artefatos.',image:'scene-electrophoresis.webp',imageAlt:'Biomédica operando analisador genético capilar e verificando sinais em um computador',chips:['Leitura crítica','Picos','Revisão']},
         {kicker:'ETAPA 5',title:'Um laudo depende de todo o percurso.',lead:'Troca de amostras, contaminação ou leitura inadequada podem comprometer uma conclusão mesmo com bons equipamentos.',image:'diagram-workflow.webp',imageAlt:'Fluxograma do teste de paternidade, da coleta ao laudo',chips:['Validação','Revisão técnica','Laudo']}
