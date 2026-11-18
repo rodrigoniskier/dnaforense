@@ -1,162 +1,22 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Portal de Genética Forense | Prof. Rodrigo Niskier</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Merriweather:wght@700&display=swap" rel="stylesheet">
-    <style>
-        body { font-family: 'Inter', sans-serif; }
-        h1, h2, h3 { font-family: 'Merriweather', serif; }
-        .dna-bg {
-            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%230f172a' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
-        }
-        .fade-in { animation: fadeIn 0.5s ease-in-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-    </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="theme-color" content="#0a2c56" />
+<meta name="description" content="Curso interativo de teste de paternidade: um caso forense, genética e biologia molecular em linguagem acessível, quizzes e resolução pericial fundamentada." />
+<title>O menino sem identidade | DNA Forense • UNIPÊ</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="/styles.css" />
+<script defer src="/data.js"></script>
+<script defer src="/app.js"></script>
 </head>
-<body class="bg-slate-50 text-slate-800 flex flex-col min-h-screen dna-bg">
-
-    <!-- Navigation -->
-    <nav class="bg-slate-900 text-white sticky top-0 z-50 shadow-lg border-b border-slate-700">
-        <div class="container mx-auto px-4">
-            <div class="flex justify-between items-center h-20">
-                <a href="index.html" class="flex items-center space-x-3">
-                    <i data-lucide="dna" class="h-8 w-8 text-blue-400"></i>
-                    <div>
-                        <h1 class="text-xl font-bold text-blue-100">Genética Forense</h1>
-                        <p class="text-xs text-slate-400">Portal Acadêmico</p>
-                    </div>
-                </a>
-                
-                <!-- Desktop Menu -->
-                <div class="hidden md:flex space-x-8">
-                    <a href="index.html" class="text-blue-400 font-medium text-sm border-b-2 border-blue-400 pb-1">Início</a>
-                    <a href="casos.html" class="hover:text-blue-400 transition text-sm font-medium flex items-center gap-2 text-slate-300"><i data-lucide="microscope" class="w-4 h-4"></i> Simulação de Casos</a>
-                    <a href="pcr.html" class="hover:text-blue-400 transition text-sm font-medium flex items-center gap-2 text-slate-300"><i data-lucide="flask-conical" class="w-4 h-4"></i> Procedimentos PCR</a>
-                    <a href="perito.html" class="hover:text-blue-400 transition text-sm font-medium flex items-center gap-2 text-slate-300"><i data-lucide="badge-alert" class="w-4 h-4"></i> Estudo PF</a>
-                </div>
-
-                <!-- Mobile Menu Button -->
-                <div class="md:hidden">
-                    <button onclick="document.getElementById('mobile-menu').classList.toggle('hidden')" class="text-slate-300 hover:text-white">
-                        <i data-lucide="menu" class="w-6 h-6"></i>
-                    </button>
-                </div>
-            </div>
-        </div>
-        <!-- Mobile Dropdown -->
-        <div id="mobile-menu" class="hidden md:hidden bg-slate-800 p-4 space-y-2">
-            <a href="index.html" class="block w-full text-left px-2 py-2 bg-slate-700 rounded text-white">Início</a>
-            <a href="casos.html" class="block w-full text-left px-2 py-2 hover:bg-slate-700 rounded text-slate-300">Simulação de Casos</a>
-            <a href="pcr.html" class="block w-full text-left px-2 py-2 hover:bg-slate-700 rounded text-slate-300">Procedimentos PCR</a>
-            <a href="perito.html" class="block w-full text-left px-2 py-2 hover:bg-slate-700 rounded text-slate-300">Estudo PF</a>
-        </div>
-    </nav>
-
-    <!-- Main Content Area -->
-    <main class="flex-grow container mx-auto px-4 py-8">
-        <div class="fade-in space-y-12">
-            <!-- Hero / Profile Section -->
-            <section class="bg-white rounded-2xl shadow-xl overflow-hidden border border-slate-200">
-                <div class="bg-gradient-to-r from-slate-800 to-blue-900 p-8 text-white md:flex items-center justify-between">
-                    <div class="md:w-2/3 pr-6">
-                        <h2 class="text-3xl font-bold mb-2">Prof. Rodrigo Niskier</h2>
-                        <p class="text-blue-200 mb-6 font-mono text-sm">Especialista em Biologia Molecular | Mestre em Genética</p>
-                        
-                        <div class="text-slate-100 space-y-3 text-sm leading-relaxed border-l-4 border-blue-500 pl-4 mb-6">
-                            <p><strong>Graduação:</strong> Biomedicina pela Universidade Federal de Pernambuco (1999-2003).</p>
-                            <p><strong>Especialização:</strong> Biologia Molecular pela Universidade de Pernambuco (2004-2006).</p>
-                            <p><strong>Mestrado:</strong> Genética e Biologia Molecular pela UFRN (2005-2007).</p>
-                            <p class="mt-2"><strong>Atuação Docente:</strong> Centro Universitário de João Pessoa (UNIPE, Cruzeiro do Sul) no curso de Medicina (Mecanismos de Agressão, Patológicos e de Defesa) e Laboratório de Estágio Supervisionado em Biomedicina.</p>
-                        </div>
-                    </div>
-                    <div class="md:w-1/3 mt-6 md:mt-0 flex flex-col items-center">
-                        <div class="bg-white p-4 rounded-lg shadow-lg max-w-xs text-center text-slate-800">
-                            <i data-lucide="book-open" class="w-12 h-12 text-orange-500 mx-auto mb-2"></i>
-                            <h3 class="font-bold text-lg mb-2">Livro Oficial</h3>
-                            <p class="text-xs text-slate-500 mb-4">Introdução à Genética Molecular Forense</p>
-                            <a href="https://www.amazon.com.br/Introdu%C3%A7%C3%A3o-%C3%A0-Gen%C3%A9tica-Molecular-Forense-ebook/dp/B0G2DZ2X3K/ref=sr_1_1?__mk_pt_BR=%C3%85M%C3%85%C5%BD%C3%95%C3%91&crid=37M33BC0W4E8W&dib=eyJ2IjoiMSJ9.4Lr3Uge6AHKrTE3fjXXOcZbV1Xz5cOEvi0yfHQsg738PaSrOedXr6cDfgtZFqqBmmlCaqwWrL0cq7VlQNZ474YImLeaqHbFQwf_pDfhpPKMeXx0NRz_fnVJZRBaH2gSNcD0xx5mttGE5R37TUiiUQkYQ1R7PX70nlPFIwy4f_-OSMDE3eOU9IRwDXtcJhLdshn1B_PyiQkFSQpZbEDINFoxm8uUg_g3R-hDrfLLV1T2b04U5frkEAwA8pCTfv_meKPW5QLK8oQ2Ri-VitZeg-A.eePOS-TnywzyeC8z_ckJwFT6mB3XeyMbwe6WVge4TrY&dib_tag=se&keywords=gen%C3%A9tica+molecular+forense&qid=1763508795&sprefix=gen%C3%A9tica+molecular+forense%2Caps%2C214&sr=8-1" 
-                               target="_blank" 
-                               class="inline-block w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 px-4 rounded transition flex items-center justify-center gap-2">
-                                <i data-lucide="shopping-cart" class="w-4 h-4"></i> Comprar na Amazon
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Video Gallery -->
-            <section>
-                <h3 class="text-2xl font-bold text-slate-800 mb-6 flex items-center gap-2">
-                    <i data-lucide="youtube" class="text-red-600"></i> Material Complementar em Vídeo
-                </h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <!-- Video 1 -->
-                    <div class="bg-white rounded-lg shadow overflow-hidden group hover:shadow-md transition">
-                        <div class="aspect-video">
-                            <iframe class="w-full h-full" src="https://www.youtube.com/embed/L_-6zqXl1uE" title="Vídeo 1" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-                        </div>
-                        <div class="p-4">
-                            <p class="text-sm font-semibold text-slate-700">Fundamentos da Genética Forense</p>
-                        </div>
-                    </div>
-                    <!-- Video 2 -->
-                    <div class="bg-white rounded-lg shadow overflow-hidden group hover:shadow-md transition">
-                        <div class="aspect-video">
-                            <iframe class="w-full h-full" src="https://www.youtube.com/embed/J_y9QsCw1us" title="Vídeo 2" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-                        </div>
-                        <div class="p-4">
-                            <p class="text-sm font-semibold text-slate-700">Análise de DNA e Marcadores</p>
-                        </div>
-                    </div>
-                    <!-- Video 3 -->
-                    <div class="bg-white rounded-lg shadow overflow-hidden group hover:shadow-md transition">
-                        <div class="aspect-video">
-                            <iframe class="w-full h-full" src="https://www.youtube.com/embed/aM15KQ8GlX0" title="Vídeo 3" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-                        </div>
-                        <div class="p-4">
-                            <p class="text-sm font-semibold text-slate-700">Técnicas de Coleta de Evidências</p>
-                        </div>
-                    </div>
-                    <!-- Video 4 -->
-                    <div class="bg-white rounded-lg shadow overflow-hidden group hover:shadow-md transition">
-                        <div class="aspect-video">
-                            <iframe class="w-full h-full" src="https://www.youtube.com/embed/NxtBBGmhsjU" title="Vídeo 4" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-                        </div>
-                        <div class="p-4">
-                            <p class="text-sm font-semibold text-slate-700">Estudo de Casos Complexos</p>
-                        </div>
-                    </div>
-                    <!-- Video 5 -->
-                    <div class="bg-white rounded-lg shadow overflow-hidden group hover:shadow-md transition">
-                        <div class="aspect-video">
-                            <iframe class="w-full h-full" src="https://www.youtube.com/embed/uNeDjEhg6Po" title="Vídeo 5" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-                        </div>
-                        <div class="p-4">
-                            <p class="text-sm font-semibold text-slate-700">Aplicações em Paternidade</p>
-                        </div>
-                    </div>
-                </div>
-            </section>
-        </div>
-    </main>
-
-    <!-- Footer -->
-    <footer class="bg-slate-900 text-slate-400 py-8 mt-auto border-t border-slate-800">
-        <div class="container mx-auto px-4 text-center">
-            <div class="flex justify-center items-center gap-2 mb-4">
-                <i data-lucide="fingerprint" class="w-6 h-6 text-slate-500"></i>
-            </div>
-            <p>&copy; 2025 Prof. Rodrigo Niskier. Todos os direitos reservados.</p>
-            <p class="text-sm mt-2">Genética Molecular Forense & Paternidade Humana</p>
-        </div>
-    </footer>
-
-    <script>
-        lucide.createIcons();
-    </script>
+<body>
+<a class="skip-link" href="#app">Pular para o conteúdo</a>
+<div id="app" aria-live="polite"></div>
+<noscript><div class="noscript">Ative o JavaScript para acessar os slides e as atividades interativas do curso.</div></noscript>
 </body>
 </html>
