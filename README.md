@@ -2,6 +2,18 @@
 
 Apresentação didática em tela cheia sobre fundamentos da herança genética, testes de paternidade por STR, procedimentos laboratoriais, interpretação da evidência e discussão de uma investigação de parentesco. A navegação é orientada por slides, sem rolagem vertical, com pausas para quizzes e revisão final dos dados.
 
+## Problema, público e resultado
+
+**Problema.** Interpretar um teste de paternidade por STR exige entender herança genética, procedimento laboratorial e leitura da evidência, o que costuma ser difícil só com texto.
+
+**Para quem.** Estudantes do curso de Exame de DNA, com identidade visual da UNIPÊ.
+
+**O que entrega.** Apresentação interativa em tela cheia com 19 slides, nove questões, um conjunto de dados para resolver o caso de parentesco e QR codes para o livro e a apostila.
+
+**Tecnologias.** JavaScript, HTML, CSS.
+
+**Qualidade e evidências.** Navegação orientada por slides, sem rolagem vertical, com pausas para quizzes e revisão final dos dados.
+
 ## Estrutura
 
 - `index.html` — documento HTML e metadados.
