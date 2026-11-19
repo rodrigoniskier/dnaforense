@@ -1,6 +1,6 @@
 # Curso de Exame de DNA — plataforma interativa
 
-Apresentação didática em tela cheia sobre fundamentos da herança genética, testes de paternidade por STR, procedimentos laboratoriais, interpretação da evidência e discussão de uma investigação de parentesco. A navegação é orientada por slides, sem rolagem vertical, com pausas para quizzes e revisão final dos dados.
+Apresentação didática em tela cheia sobre fundamentos da herança genética, testes de paternidade por STR, procedimentos laboratoriais, interpretação da evidência e discussão de uma investigação de parentesco. A navegação é orientada por slides, sem rolagem vertical, com pausas para quizzes e revisão final dos dados. O CI executa `tests/test_content.py` (arquivos, imagens e conteúdo essencial); o teste de viewport com navegador roda localmente. Licença MIT.
 
 ## Problema, público e resultado
 
